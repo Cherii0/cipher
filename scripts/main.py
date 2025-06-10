@@ -1,9 +1,9 @@
 from classes import Manager, FileHandler, Menu, CipherAlgorithm
 
 def main():
-    menu = Menu()
     file_handler = FileHandler()
-    cipher = CipherAlgorithm()
+    cipher = CipherAlgorithm(file_handler)
+    menu = Menu(cipher, file_handler)
     manager = Manager(menu, file_handler, cipher)
     manager.execute()
 
