@@ -102,9 +102,9 @@ class FileHandler:
             else:
                 non_cipher_objs.append(text_obj)
 
+        cipher_objs.sort(key = lambda obj : obj.path)
+        non_cipher_objs.sort(key = lambda obj : obj.path)
 
-        # cipher_objs.sort(key = lambda obj : obj.path)
-        # non_cipher_objs.sort(key = lambda obj : obj.path)
 
 
         print("\n")
@@ -122,6 +122,7 @@ class FileHandler:
         print("\n")
         for text_obj in non_cipher_objs:
             print(f"    * file {text_obj.file_path_non_cipher}")
+
 
 
         print("\n")
