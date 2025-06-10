@@ -58,7 +58,12 @@ class Text:
     def rot_type(self, value : str):
         self.__rot_type = value
 
-
+    @property
+    def path(self):
+        if self.encrypted:
+            return self.__file_path_cipher
+        else:
+            return self.__file_path_non_cipher
 
 
 class FileHandler:
@@ -74,22 +79,52 @@ class FileHandler:
 
 
     def describe(self) -> None:
-
-        # TODO split into loaded file, funcs
-
         if not self.texts_collector:
             print("----------------------------")
             print("there is no files loaded yet")
             print("----------------------------")
             time.sleep(2)
+            return None
+
+
+        # TODO split into cipher status
+        # TODO sort prining
+        # TODO split this func into multiple funcs
+
+        cipher_objs = []
+        non_cipher_objs = []
+
+
+        for text_obj in self.texts_collector.values():
+            if text_obj.encrypted:
+                cipher_objs.append(text_obj)
+            else:
+                non_cipher_objs.append(text_obj)
+
+
+        cipher_objs.sort(key = lambda obj : obj.path)
+        non_cipher_objs.sort(key = lambda obj : obj.path)
+
+
+        print("\n")
+        print(" loaded files into system :")
+        print("\n")
+        print("--------  CIPHER  ---------")
+        print("\n")
+        if cipher_objs:
+            for text_obj in cipher_objs:
+                print(f"    * file  {text_obj.file_path_non_cipher} has been cipher in location : {text_obj.file_path_cipher}" )
         else:
-            print("loaded files into system : ")
+            print(f" * no cipher file in this system session")
+        print("\n")
+        print("------  NON CIPHER  -------")
+        print("\n")
+        for text_obj in non_cipher_objs:
+            print(f"    * file {text_obj.file_path_non_cipher} has no corresponding cipher file")
 
-            for id, text_obj in self.texts_collector.items():
-                print(id, text_obj)
 
-            print("\n")
-            input("Press any key to go back... ")
+        print("\n")
+        input("Press any key to go back... ")
         os.system("cls")
 
 
@@ -206,6 +241,7 @@ class Menu:
 
 
     def show_avaliable_files(self):
+        # TODO make indices
         os.chdir("../cipher_files")
         files =  os.listdir()
 
