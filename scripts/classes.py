@@ -58,7 +58,12 @@ class Text:
     def rot_type(self, value : str):
         self.__rot_type = value
 
-
+    @property
+    def path(self):
+        if self.encrypted:
+            return self.__file_path_cipher
+        else:
+            return self.__file_path_non_cipher
 
 
 class FileHandler:
@@ -74,22 +79,53 @@ class FileHandler:
 
 
     def describe(self) -> None:
-
-        # TODO split into loaded file, funcs
-
         if not self.texts_collector:
-            print("----------------------------")
+            print("\n----------------------------")
             print("there is no files loaded yet")
             print("----------------------------")
             time.sleep(2)
+            os.system("cls")
+            return None
+
+
+        # TODO split into cipher status
+        # TODO sort prining
+        # TODO split this func into multiple funcs
+
+        cipher_objs = []
+        non_cipher_objs = []
+
+
+        for text_obj in self.texts_collector.values():
+            if text_obj.encrypted:
+                cipher_objs.append(text_obj)
+            else:
+                non_cipher_objs.append(text_obj)
+
+
+        # cipher_objs.sort(key = lambda obj : obj.path)
+        # non_cipher_objs.sort(key = lambda obj : obj.path)
+
+
+        print("\n")
+        print(" loaded files into system :")
+        print("\n")
+        print("--------  CIPHER  ---------")
+        print("\n")
+        if cipher_objs:
+            for text_obj in cipher_objs:
+                print(f"    * file  {text_obj.file_path_non_cipher} has been cipher in location : {text_obj.file_path_cipher}" )
         else:
-            print("loaded files into system : ")
+            print(f" * no cipher file in this system session")
+        print("\n")
+        print("------  NON CIPHER  -------")
+        print("\n")
+        for text_obj in non_cipher_objs:
+            print(f"    * file {text_obj.file_path_non_cipher}")
 
-            for id, text_obj in self.texts_collector.items():
-                print(id, text_obj)
 
-            print("\n")
-            input("Press any key to go back... ")
+        print("\n")
+        input("Press any key to go back... ")
         os.system("cls")
 
 
@@ -116,7 +152,7 @@ class FileHandler:
         self.texts_collector.update({id(text_obj) : text_obj})
         print("-------------------------")
         print(f"file {file_path} loaded")
-        time.sleep(1)
+        time.sleep(1.5)
 
     def update(self, text_obj : Text):
         self.texts_collector.update({id(text_obj) : text_obj})
@@ -172,40 +208,69 @@ class Menu:
     def show_about():
         print("about")
 
-    @staticmethod
-    def show_cipher_tab( texts_collection : dict) -> tuple:
 
-        for key, value in texts_collection.items():
-            print(key, value)
+    def show_cipher_tab(self):
+        """
+        prints out avaliable files, then ensures proper
+        file name to cipher, saves ciper version into given path
+        """
+        cipher_text_objs = []
+        non_cipher_text_objs = []
 
-
-        print("loaded files status : ")
-        print("----------------------")
-        for file_path, file_obj in texts_collection.items():
-            # TODO if ciphered then in what location
-            if file_obj.encrypted:
-                print(f"CIPHER version - {file_obj.cipher_path} | NON CIPHER - {file_path}")
+        for text_obj in self.file_handler.texts_collector.values():
+            if text_obj.encrypted:
+                cipher_text_objs.append(f" * {text_obj.path} | NON CIPHER - {text_obj.file_path_non_cipher}")
             else:
-                print(f"NON CIPHER - {file_path}")
+                non_cipher_text_objs.append(f" * {text_obj.path}")
 
+        # printing
+        print("loaded files status : \n")
+        print("CIPHER : \n")
+        if not cipher_text_objs:
+            print(" * missing cipher files in current session \n")
+        else:
+            for text_obj_desc in cipher_text_objs:
+                print(text_obj_desc)
 
+        print("\nNON CIPHER : \n")
+        if not non_cipher_text_objs:
+            print(" * missing non cipher files in current session \n")
+        else:
+            for text_obj_desc in non_cipher_text_objs:
+                print(text_obj_desc)
         print("\n")
-        file_to_cipher = input("Provide file name to cipher : ")
-        while file_to_cipher not in texts_collection.keys():
+
+
+        # TODO cipher all at once
+        if not non_cipher_text_objs:
+            input("Press any key to back to menu... ")
             os.system("cls")
-            file_to_cipher = input("Provide proper file name : ")
-            if file_to_cipher == "4":
+            return
+
+        all_paths = []
+        for attr in self.file_handler.texts_collector.values():
+            all_paths.append(attr.file_path_non_cipher)
+
+        file_to_cipher= input("Provide file name to cipher : ")
+
+
+        while file_to_cipher not in all_paths:
+            file_to_cipher = input("Provide proper file name to cipher : ")
+
+
+        for obj_id, attr in self.file_handler.texts_collector.items():
+            if attr.path == file_to_cipher:
+                text_obj_to_cipher = self.file_handler.texts_collector.get(obj_id)
                 break
 
+
         file_path_write = input(f"Provide file name to write {file_to_cipher} cipher version : ")
-
-        return file_to_cipher, file_path_write
-
-
+        self.cipher.cipher(file_path_write, text_obj_to_cipher)
 
 
 
     def show_avaliable_files(self):
+        # TODO make indices
         os.chdir("../cipher_files")
         files =  os.listdir()
 
@@ -283,9 +348,7 @@ class Manager:
                         self.file_handler.read_file(file_path)
                     os.system("cls")
                 case 2:
-                    file_path_to_cipher, file_path_ciphered = self.menu.show_cipher_tab(self.file_handler.texts_collector)
-                    obj = self.file_handler.texts_collector[file_path_to_cipher]
-                    self.cipher.cipher(file_path_ciphered, obj) # in place
+                    self.menu.show_cipher_tab()
                 case 3:
                     self.menu.show_create_tab()
                     os.system("cls")
