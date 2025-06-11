@@ -260,11 +260,13 @@ class Menu:
         print("---------------------")
         print("        MENU        ")
         print("---------------------")
-        print("1. read file")
-        print("2. cipher file")
-        print("3. create file")
-        print("4. show managed files")
-        print("5. about program")
+        print("1. load file into file-system")
+        print("2. show managed files")
+        print("3. cipher file")
+        print("4. decipher file")
+        # print("4. create file")
+
+        print("6. about program")
         print("---------------------")
 
     @staticmethod
@@ -282,9 +284,9 @@ class Menu:
 
         for text_obj in self.file_handler.texts_collector.values():
             if text_obj.encrypted:
-                cipher_text_objs.append(f" * {text_obj.path} | NON CIPHER - {text_obj.file_path_non_cipher}")
+                cipher_text_objs.append(f" * {text_obj.file_path} | NON CIPHER - ??? ")
             else:
-                non_cipher_text_objs.append(f" * {text_obj.path}")
+                non_cipher_text_objs.append(f" * {text_obj.file_path}")
 
         # printing
         print("loaded files status : \n")
@@ -312,7 +314,7 @@ class Menu:
 
         all_paths = []
         for attr in self.file_handler.texts_collector.values():
-            all_paths.append(attr.file_path_non_cipher)
+            all_paths.append(attr.file_path)
 
         file_to_cipher= input("Provide file name to cipher : ")
 
@@ -322,7 +324,7 @@ class Menu:
 
 
         for obj_id, attr in self.file_handler.texts_collector.items():
-            if attr.path == file_to_cipher:
+            if attr.file_path == file_to_cipher:
                 text_obj_to_cipher = self.file_handler.texts_collector.get(obj_id)
                 break
 
@@ -377,6 +379,15 @@ class Menu:
         else:
             self.cipher.cipher(file_path, obj)
 
+        os.system("cls")
+
+    def show_load_file_tab(self):
+        file_path = self.show_avaliable_files()
+        if not file_path:
+            pass
+        else:
+            self.file_handler.read_file(file_path)
+        os.system("cls")
 
     @staticmethod
     def show_read_tab():
@@ -401,22 +412,16 @@ class Manager:
             os.system("cls")
             match choice:
                 case 1:
-                    file_path = self.menu.show_avaliable_files()
-                    if not file_path:
-                        pass
-                    else:
-                        self.file_handler.read_file(file_path)
-                    os.system("cls")
+                    self.menu.show_load_file_tab()
                 case 2:
                     self.menu.show_cipher_tab()
                 case 3:
                     self.menu.show_create_tab()
-                    os.system("cls")
                 case 4:
                     self.file_handler.show()
                 case 5:
                     self.menu.show_about()
                 case _:
                     break
-
             self.menu.show_menu()
+
