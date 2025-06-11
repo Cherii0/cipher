@@ -18,6 +18,9 @@ class Text:
     _rot_type : str = field(init = False, default = None)
     _encrypted : bool = field(init = False, default = False)
 
+    @property
+    def content(self):
+        return self._content
 
     @property
     def file_path(self):
@@ -208,38 +211,35 @@ class CipherAlgorithm:
         return "".join(cipher_content)
 
 
-    def cipher(self, cipher_path : str, text_obj : Text):
+
+    def cipher(self, content : str) -> str | None:
         """
-        Cipher path is guaranteed proper
-        Text object changed in place
+        takes decipher content and returns cipher version
+        runs proper rot cipher
         """
+
+        if not content:
+            return None
 
         method_choice = input("Your method declaration rot13/rot47: ")
-        non_cipher_content = text_obj.content_cipher
-
-        cipher_content = None
         if method_choice == "rot13":
-            content = self.check_input(non_cipher_content)
+            content = self.check_input(content)
             if not content:
                 print("\nthere is no content to cipher\n")
-                return
-                # user abort cipher tab - > return to menu
+                return None
             cipher_content = self.perform_rot13(content)
 
         print(f"Correspond cipher version : {cipher_content}")
-
-
-
-        text_obj.file_path_cipher = cipher_path
-        text_obj.content_cipher = "CIPHED concent"
-        text_obj.encrypted = True
-        text_obj.rot_type = "rot32"
 
         # TODO write to file with file_path = cipher_path and content =
         # TODO whatever comes from cipher algorithm
 
         print("file has been cipher...")
         time.sleep(2)
+        return cipher_content
+
+
+
 
     def show_tutorial(self):
         print("\n")
@@ -279,66 +279,40 @@ class Menu:
         prints out avaliable files, then ensures proper
         file name to cipher, saves ciper version into given path
         """
-        cipher_text_objs = []
-        non_cipher_text_objs = []
 
-        for text_obj in self.file_handler.texts_collector.values():
-            if text_obj.encrypted:
-                cipher_text_objs.append(f" * {text_obj.file_path} | NON CIPHER - ??? ")
-            else:
-                non_cipher_text_objs.append(f" * {text_obj.file_path}")
-
-        # printing
-        print("loaded files status : \n")
-        print("CIPHER : \n")
-        if not cipher_text_objs:
-            print(" * missing cipher files in current session \n")
-        else:
-            for text_obj_desc in cipher_text_objs:
-                print(text_obj_desc)
-
-        print("\nNON CIPHER : \n")
-        if not non_cipher_text_objs:
-            print(" * missing non cipher files in current session \n")
-        else:
-            for text_obj_desc in non_cipher_text_objs:
-                print(text_obj_desc)
-        print("\n")
-
-
-        # TODO cipher all at once
-        if not non_cipher_text_objs:
-            input("Press any key to back to menu... ")
-            os.system("cls")
-            return
+        self.show_avaliable_files()
 
         all_paths = []
         for attr in self.file_handler.texts_collector.values():
-            all_paths.append(attr.file_path)
+            if not attr.encrypted:
+                all_paths.append(attr.file_path)
 
         file_to_cipher= input("Provide file name to cipher : ")
-
 
         while file_to_cipher not in all_paths:
             file_to_cipher = input("Provide proper file name to cipher : ")
 
-
-        for obj_id, attr in self.file_handler.texts_collector.items():
+        text_obj_to_cipher = None
+        for text_obj_path, attr in self.file_handler.texts_collector.items():
             if attr.file_path == file_to_cipher:
-                text_obj_to_cipher = self.file_handler.texts_collector.get(obj_id)
+                text_obj_to_cipher = self.file_handler.texts_collector.get(text_obj_path)
                 break
 
 
-        file_path_write = input(f"Provide file name to write {file_to_cipher} cipher version : ")
-        self.cipher.cipher(file_path_write, text_obj_to_cipher)
+        cipher_file_path = input(f"Provide file name to write {file_to_cipher} cipher version : ")
+        try :
+            content_cipher = self.cipher.cipher(text_obj_to_cipher.content)
+        except AttributeError:
+            return None
+
+        cipher_text_obj = Text(cipher_file_path, content_cipher)
+        self.file_handler.texts_collector.update({cipher_file_path : cipher_text_obj})
+        return None
 
 
-
-    def show_avaliable_files(self):
-        # TODO make indices
+    def show_avaliable_files(self) -> None:
         os.chdir("../cipher_files")
         files =  os.listdir()
-
         idx_gen = iter_func(len(files))
         p = r"(?P<file_path>\w{1,})(\.)(?P<extension>txt|json)"
 
@@ -348,17 +322,13 @@ class Menu:
                 self.files_filtered.update({next(idx_gen): match.string})
         ff_len = len(self.files_filtered)
 
-        Menu.show_read_tab()
         print("avaliable files")
         for idx, file in self.files_filtered.items():
             print(f"{idx} - {file}")
             if idx == ff_len:
                 print(f"{idx+1} - back")
 
-        choice = int(input("Provide file path : "))
-        if ff_len+1 == choice:
-            return None
-        return self.files_filtered[choice]
+        return None
 
     def show_create_tab(self):
         print("---------------------")
