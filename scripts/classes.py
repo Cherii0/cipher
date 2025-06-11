@@ -48,6 +48,7 @@ class FileHandler:
 
     def __init__(self):
         self.texts_collector = dict()
+        self.cipher_objs, self.non_cipher_objs = [], []
 
     def get_text(self, file_path : str) -> Text | None:
         if file_path in self.texts_collector.keys():
@@ -63,6 +64,44 @@ class FileHandler:
                 non_cipher.append(text_obj)
         return cipher, non_cipher
 
+
+
+    def sort_text_objs(self, cipher : list, non_cipher : list) -> None:
+        cipher.sort(key = lambda obj : obj.file_path)
+        non_cipher.sort(key = lambda obj : obj.file_path)
+
+
+
+    def choose_file(self, cipher : bool) -> str:
+        if cipher:
+            all_choices = self.non_cipher_objs
+        else:
+            all_choices = self.cipher_objs
+
+        choice = input("Provide file name to cipher : ")
+        if choice not in all_choices:
+            choice = input("Provide proper file name to cipher : ")
+        return choice
+
+
+    def show_cipher_files(self):
+        print("--------  CIPHER  ---------")
+        print("\n")
+        if self.cipher_objs:
+            for text_obj in self.cipher_objs:
+                print(f"    * file  {text_obj.file_path} has been cipher in location : ???" )
+        else:
+            print(f" * no cipher file in this system session")
+        print("\n")
+
+    def show_non_cipher_files(self):
+        print("------  NON CIPHER  -------")
+        print("\n")
+        for text_obj in self.non_cipher_objs:
+            print(f"    * file {text_obj.file_path}")
+
+
+
     def show_no_files_info(self):
             print("\n----------------------------")
             print("there is no files loaded yet")
@@ -70,44 +109,25 @@ class FileHandler:
             time.sleep(TIME_SLEEPER)
             os.system("cls")
 
-    def sort_text_objs(self, cipher : list, non_cipher : list) -> None:
-        cipher.sort(key = lambda obj : obj.file_path)
-        non_cipher.sort(key = lambda obj : obj.file_path)
-
-    def show_loaded_files(self, cipher_objs, non_cipher_objs):
-        print("\n")
-        print(" loaded files into system :")
-        print("\n")
-        print("--------  CIPHER  ---------")
-        print("\n")
-        if cipher_objs:
-            for text_obj in cipher_objs:
-                print(f"    * file  {text_obj.file_path} has been cipher in location : ???" )
-        else:
-            print(f" * no cipher file in this system session")
-        print("\n")
-        print("------  NON CIPHER  -------")
-        print("\n")
-        for text_obj in non_cipher_objs:
-            print(f"    * file {text_obj.file_path}")
-
-        print("\n")
-        input("Press any key to go back... ")
-        os.system("cls")
-
-    def show(self) -> None:
+    def show_file_system(self):
         if not self.texts_collector:
             self.show_no_files_info()
             return None
 
-        # TODO split into cipher status
-        # TODO split this func into multiple funcs
+        self.cipher_objs, self.non_cipher_objs = self.split_text_objects()
+        self.sort_text_objs(self.cipher_objs, self.non_cipher_objs)
 
-        cipher_objs, non_cipher_objs = self.split_text_objects()
-        self.sort_text_objs(cipher_objs, non_cipher_objs)
-
-        self.show_loaded_files(cipher_objs, non_cipher_objs)
+        print("\n")
+        print(" loaded files into system :")
+        print("\n")
+        self.show_cipher_files()
+        self.show_non_cipher_files()
+        print("\n")
+        input("Press any key to go back... ")
+        os.system("cls")
         return None
+
+
 
     def read_file(self, file_path : str) -> None :
         """
@@ -198,16 +218,30 @@ class CipherAlgorithm:
         latin_letters_dict = {char_: code_ for (char_, code_) in zip(string.ascii_lowercase, latin_codes)}
         latin_codes_dict = {code_ : char_ for (char_, code_) in latin_letters_dict.items()}
 
-        non_cipher_content_codes = [latin_letters_dict[char_] for char_ in content]
+        non_cipher_content_codes = []
+        for char_ in content:
+            if char_ != "*":
+                non_cipher_content_codes.append(latin_letters_dict[char_])
+            else:
+                non_cipher_content_codes.append(None)
+
         cipher_content_codes = []
         for code_ in non_cipher_content_codes:
+            if not code_:
+                cipher_content_codes.append(None)
+                continue
             if code_ < self.rot13_offset:
                 cipher_content_codes.append(code_ + self.rot13_offset)
             else:
                 cipher_content_codes.append(code_ - self.rot13_offset)
 
+        cipher_content = []
+        for code_ in cipher_content_codes:
+            if not code_:
+                cipher_content.append("*")
+            else:
+                cipher_content.append(latin_codes_dict[code_])
 
-        cipher_content = [latin_codes_dict[code_] for code_ in cipher_content_codes]
         return "".join(cipher_content)
 
 
@@ -273,6 +307,19 @@ class Menu:
     def show_about():
         print("about")
 
+    def cipher_file(self):
+        self.file_handler.show_non_cipher_files()
+        file_path = self.file_handler.choose_file(cipher = True)
+        choosen_text_obj_content = self.file_handler.texts_collector.get(file_path).content
+        cipher_content = self.cipher.cipher(choosen_text_obj_content)
+        cipher_obj = Text(file_path, cipher_content)
+        self.file_handler.update(cipher_obj)
+
+    def decipher_file(self):
+        self.file_handler.show_cipher_files()
+        self.file_handler.choose_file(cipher = False)
+        # self.cipher.decipher(file_path)
+
 
     def show_cipher_tab(self):
         """
@@ -280,7 +327,7 @@ class Menu:
         file name to cipher, saves ciper version into given path
         """
 
-        self.show_avaliable_files()
+        self.choose_file()
 
         all_paths = []
         for attr in self.file_handler.texts_collector.values():
@@ -309,8 +356,7 @@ class Menu:
         self.file_handler.texts_collector.update({cipher_file_path : cipher_text_obj})
         return None
 
-
-    def show_avaliable_files(self) -> None:
+    def show_avaliable_files(self):
         os.chdir("../cipher_files")
         files =  os.listdir()
         idx_gen = iter_func(len(files))
@@ -322,13 +368,19 @@ class Menu:
                 self.files_filtered.update({next(idx_gen): match.string})
         ff_len = len(self.files_filtered)
 
-        print("avaliable files")
+        print("\n\navaliable files")
         for idx, file in self.files_filtered.items():
             print(f"{idx} - {file}")
             if idx == ff_len:
                 print(f"{idx+1} - back")
 
-        return None
+    def choose_file(self):
+        self.show_avaliable_files()
+        ff_len = len(self.files_filtered)
+        choice = int(input("Provide file path choice : "))
+        if ff_len+1 == choice:
+            return None
+        return self.files_filtered[choice]
 
     def show_create_tab(self):
         print("---------------------")
@@ -351,10 +403,10 @@ class Menu:
 
         os.system("cls")
 
-    def show_load_file_tab(self):
-        file_path = self.show_avaliable_files()
+    def load_file(self):
+        file_path = self.choose_file()
         if not file_path:
-            pass
+            return
         else:
             self.file_handler.read_file(file_path)
         os.system("cls")
@@ -382,13 +434,13 @@ class Manager:
             os.system("cls")
             match choice:
                 case 1:
-                    self.menu.show_load_file_tab()
+                    self.menu.load_file()
                 case 2:
-                    self.menu.show_cipher_tab()
+                    self.file_handler.show_file_system()
                 case 3:
-                    self.menu.show_create_tab()
+                    self.menu.cipher_file()
                 case 4:
-                    self.file_handler.show()
+                    self.menu.decipher_file()
                 case 5:
                     self.menu.show_about()
                 case _:
