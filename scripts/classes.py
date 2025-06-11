@@ -170,6 +170,9 @@ class CipherAlgorithm:
 
     def check_input(self, content : str) -> str | None:
 
+        if not content:
+            return None
+
         non_latin_chars = []
         non_latin_index = []
         for (idx, c) in enumerate(content, start=0):
@@ -191,6 +194,7 @@ class CipherAlgorithm:
             print(f"{char_} : {pos_}")
         print("\n")
         replace = input("Change above occurrences with '*' ? YES\\NO : ")
+        print("\n")
         if replace:
             non_cipher_content_replaced = list(content)
             for pos_ in non_latin_index:
@@ -201,7 +205,7 @@ class CipherAlgorithm:
 
         try:
             print(f"Provided content after correction : \n")
-            print(f"  {non_cipher_content_replaced}")
+            print(f"  {non_cipher_content_replaced}\n")
         except NameError:
             pass
 
@@ -229,20 +233,20 @@ class CipherAlgorithm:
         return "".join(cipher_content)
 
 
-
-    def cipher_test(self):
-
-        print("\n")
-        print(" * for method rot13 provide  content that contains only letters A-Z not even space allowed\n")
-        print(" * for method rot47 provide only content that contains ASCII characters\n\n")
+    def cipher(self, cipher_path : str, text_obj : Text):
+        """
+        Cipher path is guaranteed proper
+        Text object changed in place
+        """
 
         method_choice = input("Your method declaration rot13/rot47: ")
-        non_cipher_content = input("Provide content to cipher : ")
+        non_cipher_content = text_obj.content_cipher
 
         cipher_content = None
         if method_choice == "rot13":
             content = self.check_input(non_cipher_content)
             if not content:
+                print("\nthere is no content to cipher\n")
                 return
                 # user abort cipher tab - > return to menu
             cipher_content = self.perform_rot13(content)
@@ -250,20 +254,6 @@ class CipherAlgorithm:
         print(f"Correspond cipher version : {cipher_content}")
 
 
-
-
-
-
-
-
-
-
-
-    def cipher(self, cipher_path : str, text_obj : Text):
-        """
-        Cipher path is guaranteed proper
-        Text object changed in place
-        """
 
         text_obj.file_path_cipher = cipher_path
         text_obj.content_cipher = "CIPHED concent"
@@ -276,6 +266,10 @@ class CipherAlgorithm:
         print("file has been cipher...")
         time.sleep(2)
 
+    def show_tutorial(self):
+        print("\n")
+        print(" * for method rot13 provide  content that contains only letters A-Z not even space allowed\n")
+        print(" * for method rot47 provide only content that contains ASCII characters\n\n")
 
 
 class Menu:
@@ -296,7 +290,6 @@ class Menu:
         print("3. create file")
         print("4. show managed files")
         print("5. about program")
-        print("6. cipher - TEST")
         print("---------------------")
 
     @staticmethod
@@ -394,7 +387,9 @@ class Menu:
         print("---------------------")
         print("     CREATE FILE     ")
         print("---------------------")
+        self.cipher.show_tutorial()
         content = input("Provide content to cipher : ")
+        content = self.cipher.check_input(content)
         file_path = input("Provide file path for non cipher version : ")
         choice = input("Combine both cipher and non cipher versions into one file?\nType YES\\NO : ")
 
@@ -406,11 +401,6 @@ class Menu:
             self.cipher.cipher(cipher_file_path, obj)
         else:
             self.cipher.cipher(file_path, obj)
-
-
-
-
-
 
 
     @staticmethod
@@ -451,8 +441,6 @@ class Manager:
                     self.file_handler.describe()
                 case 5:
                     self.menu.show_about()
-                case 6:
-                    self.cipher.cipher_test()
                 case _:
                     break
 
