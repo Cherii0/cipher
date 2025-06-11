@@ -4,6 +4,8 @@ import re
 import os
 import time
 
+TIME_SLEEPER = 2
+
 def iter_func(max):
     for n in range(1, max+1):
         yield n
@@ -11,60 +13,32 @@ def iter_func(max):
 
 @dataclass
 class Text:
-    __file_path_non_cipher : str
-    __file_path_cipher : str = field(init = False, default = None)
+    _file_path : str = None
+    _content : str = None
+    _rot_type : str = field(init = False, default = None)
+    _encrypted : bool = field(init = False, default = False)
 
-    __content_non_cipher : str
-    __content_cipher : str = field(init = False, default = None)
-
-    __rot_type : str = field(init = False, default = None)
-    __encrypted : bool = field(init = False, default = False)
-
-    # properties used inside cipher function in order to change objects attr in place
-    @property
-    def file_path_non_cipher(self):
-        return self.__file_path_non_cipher
 
     @property
-    def file_path_cipher(self):
-        return self.__file_path_cipher
-
-    @file_path_cipher.setter
-    def file_path_cipher(self, value : str):
-        self.__file_path_cipher = value
+    def file_path(self):
+        return self._file_path
 
     @property
     def encrypted(self):
-        return self.__encrypted
+        return self._encrypted
 
     @encrypted.setter
     def encrypted(self, value : bool):
-        self.__encrypted = value
-
-
-    @property
-    def content_cipher(self):
-        return self.__content_cipher
-
-    @content_cipher.setter
-    def content_cipher(self, value : str):
-        self.__content_cipher = value
-
+        self._encrypted = value
 
     @property
     def rot_type(self):
-        return self.__rot_type
+        return self._rot_type
 
     @rot_type.setter
     def rot_type(self, value : str):
-        self.__rot_type = value
+        self._rot_type = value
 
-    @property
-    def path(self):
-        if self.encrypted:
-            return self.__file_path_cipher
-        else:
-            return self.__file_path_non_cipher
 
 
 class FileHandler:
@@ -77,37 +51,27 @@ class FileHandler:
             return self.texts_collector[file_path]
         return None
 
+    def split_text_objects(self):
+        cipher, non_cipher = [], []
+        for text_obj in self.texts_collector.values():
+            if text_obj.encrypted:
+                cipher.append(text_obj)
+            else:
+                non_cipher.append(text_obj)
+        return cipher, non_cipher
 
-
-    def describe(self) -> None:
-        if not self.texts_collector:
+    def show_no_files_info(self):
             print("\n----------------------------")
             print("there is no files loaded yet")
             print("----------------------------")
-            time.sleep(2)
+            time.sleep(TIME_SLEEPER)
             os.system("cls")
-            return None
 
+    def sort_text_objs(self, cipher : list, non_cipher : list) -> None:
+        cipher.sort(key = lambda obj : obj.file_path)
+        non_cipher.sort(key = lambda obj : obj.file_path)
 
-        # TODO split into cipher status
-        # TODO sort prining
-        # TODO split this func into multiple funcs
-
-        cipher_objs = []
-        non_cipher_objs = []
-
-
-        for text_obj in self.texts_collector.values():
-            if text_obj.encrypted:
-                cipher_objs.append(text_obj)
-            else:
-                non_cipher_objs.append(text_obj)
-
-        cipher_objs.sort(key = lambda obj : obj.path)
-        non_cipher_objs.sort(key = lambda obj : obj.path)
-
-
-
+    def show_loaded_files(self, cipher_objs, non_cipher_objs):
         print("\n")
         print(" loaded files into system :")
         print("\n")
@@ -115,21 +79,32 @@ class FileHandler:
         print("\n")
         if cipher_objs:
             for text_obj in cipher_objs:
-                print(f"    * file  {text_obj.file_path_non_cipher} has been cipher in location : {text_obj.file_path_cipher}" )
+                print(f"    * file  {text_obj.file_path} has been cipher in location : ???" )
         else:
             print(f" * no cipher file in this system session")
         print("\n")
         print("------  NON CIPHER  -------")
         print("\n")
         for text_obj in non_cipher_objs:
-            print(f"    * file {text_obj.file_path_non_cipher}")
-
-
+            print(f"    * file {text_obj.file_path}")
 
         print("\n")
         input("Press any key to go back... ")
         os.system("cls")
 
+    def show(self) -> None:
+        if not self.texts_collector:
+            self.show_no_files_info()
+            return None
+
+        # TODO split into cipher status
+        # TODO split this func into multiple funcs
+
+        cipher_objs, non_cipher_objs = self.split_text_objects()
+        self.sort_text_objs(cipher_objs, non_cipher_objs)
+
+        self.show_loaded_files(cipher_objs, non_cipher_objs)
+        return None
 
     def read_file(self, file_path : str) -> None :
         """
@@ -151,13 +126,13 @@ class FileHandler:
                 content += char
 
         text_obj = Text(file_path, content)
-        self.texts_collector.update({id(text_obj) : text_obj})
+        self.texts_collector.update({file_path : text_obj})
         print("-------------------------")
         print(f"file {file_path} loaded")
         time.sleep(1.5)
 
     def update(self, text_obj : Text):
-        self.texts_collector.update({id(text_obj) : text_obj})
+        self.texts_collector.update({text_obj.file_path : text_obj})
 
 
 
@@ -438,7 +413,7 @@ class Manager:
                     self.menu.show_create_tab()
                     os.system("cls")
                 case 4:
-                    self.file_handler.describe()
+                    self.file_handler.show()
                 case 5:
                     self.menu.show_about()
                 case _:
