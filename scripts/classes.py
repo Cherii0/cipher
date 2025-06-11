@@ -1,3 +1,4 @@
+import string
 from dataclasses import dataclass, field
 import re
 import os
@@ -164,6 +165,99 @@ class CipherAlgorithm:
 
     def __init__(self, file_handler : FileHandler):
         self.file_handler = file_handler
+        self.rot13_offset = 13
+
+
+    def check_input(self, content : str) -> str | None:
+
+        non_latin_chars = []
+        non_latin_index = []
+        for (idx, c) in enumerate(content, start=0):
+            if c not in string.ascii_lowercase:
+                if c == " ":
+                    non_latin_chars.append("space")
+                else:
+                    non_latin_chars.append(c)
+                non_latin_index.append(idx)
+
+
+        if not non_latin_chars:
+            return content
+
+
+        print("\n")
+        print("Found non allowed characters at given positions : \n")
+        for (char_, pos_) in zip(non_latin_chars, non_latin_index):
+            print(f"{char_} : {pos_}")
+        print("\n")
+        replace = input("Change above occurrences with '*' ? YES\\NO : ")
+        if replace:
+            non_cipher_content_replaced = list(content)
+            for pos_ in non_latin_index:
+                non_cipher_content_replaced[pos_] = "*"
+            non_cipher_content_replaced = "".join(non_cipher_content_replaced)
+        else:
+            return None
+
+        try:
+            print(f"Provided content after correction : \n")
+            print(f"  {non_cipher_content_replaced}")
+        except NameError:
+            pass
+
+        return non_cipher_content_replaced
+
+    def perform_rot13(self, content : str) -> str:
+
+        latin_bgn = 0
+        latin_end = 26
+
+        latin_codes = [c for c in range(latin_bgn, latin_end)]
+        latin_letters_dict = {char_: code_ for (char_, code_) in zip(string.ascii_lowercase, latin_codes)}
+        latin_codes_dict = {code_ : char_ for (char_, code_) in latin_letters_dict.items()}
+
+        non_cipher_content_codes = [latin_letters_dict[char_] for char_ in content]
+        cipher_content_codes = []
+        for code_ in non_cipher_content_codes:
+            if code_ < self.rot13_offset:
+                cipher_content_codes.append(code_ + self.rot13_offset)
+            else:
+                cipher_content_codes.append(code_ - self.rot13_offset)
+
+
+        cipher_content = [latin_codes_dict[code_] for code_ in cipher_content_codes]
+        return "".join(cipher_content)
+
+
+
+    def cipher_test(self):
+
+        print("\n")
+        print(" * for method rot13 provide  content that contains only letters A-Z not even space allowed\n")
+        print(" * for method rot47 provide only content that contains ASCII characters\n\n")
+
+        method_choice = input("Your method declaration rot13/rot47: ")
+        non_cipher_content = input("Provide content to cipher : ")
+
+        cipher_content = None
+        if method_choice == "rot13":
+            content = self.check_input(non_cipher_content)
+            if not content:
+                return
+                # user abort cipher tab - > return to menu
+            cipher_content = self.perform_rot13(content)
+
+        print(f"Correspond cipher version : {cipher_content}")
+
+
+
+
+
+
+
+
+
+
 
     def cipher(self, cipher_path : str, text_obj : Text):
         """
@@ -181,7 +275,6 @@ class CipherAlgorithm:
 
         print("file has been cipher...")
         time.sleep(2)
-
 
 
 
@@ -203,6 +296,7 @@ class Menu:
         print("3. create file")
         print("4. show managed files")
         print("5. about program")
+        print("6. cipher - TEST")
         print("---------------------")
 
     @staticmethod
@@ -357,6 +451,8 @@ class Manager:
                     self.file_handler.describe()
                 case 5:
                     self.menu.show_about()
+                case 6:
+                    self.cipher.cipher_test()
                 case _:
                     break
 
