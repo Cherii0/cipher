@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 @dataclass
 class Text:
     _content : str = None
-    _rot_type : str = field(init = True, default = None)
-    _encrypted : bool = field(init = True, default = False)
+    _rot_type : str =  None
+    _encrypted : bool = None
 
     @property
     def content(self):

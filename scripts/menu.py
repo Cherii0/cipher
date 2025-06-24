@@ -1,15 +1,14 @@
 import sys
 import re
 import os
+import time
 
 from file_handler import FileHandler
 from cipher import CipherAlgorithm
 
 class Menu:
-
-    def __init__(self):
-        pass
-
+    def __init__(self, file_handler):
+        self.file_handler = file_handler
     @staticmethod
     def menu():
         print("---------------------")
@@ -80,10 +79,11 @@ class Menu:
 
     def cipher(self, cipher : CipherAlgorithm, file_handler : FileHandler):
         print("---------------------")
-        print("       CIPHER        ")
+        print("|      CIPHER       |")
         print("---------------------")
         print("1. from provided text")
         print("2. from file system")
+        print("---------------------")
         choice = input("Your choice : ")
         while choice not in ["1", "2"]:
             choice = input("Type proper choice : ")
@@ -99,24 +99,34 @@ class Menu:
 
 
     def cipher_from_filesystem(self, cipher : CipherAlgorithm, file_handler : FileHandler):
-
+        os.system("cls")
+        print("Avaliable files in directory : \n")
         avaliable_filepaths = file_handler.unknown_status_filepaths
-        filepath = input("Provide filepath to cipher : ")
+        for filepath in avaliable_filepaths:
+            print(f"* {filepath}")
+        filepath = input("\nProvide filepath to cipher : ")
         while filepath not in avaliable_filepaths:
             filepath = input("Provide proper filepath to cipher : ")
 
         content = file_handler.read_file(filepath)
         file_handler.update_non_cipher_objs(filepath = filepath, content = content)
+        time.sleep(1)
+        os.system("cls")
 
         content = cipher.check_input(content)
+        os.system("cls")
+        print(f"Provided content after correction : \n")
+        print(f"  {content}\n")
         method = cipher.method_choice()
         cipher_content = cipher.cipher_manager(method = method, content = content)
-        print(f"Correspond cipher version : {cipher_content}")
 
         match self.choice_after_cipher_file():
             case 1:
-                print(f"Provided content : {content}")
+                os.system("cls")
+                print(f"\n\nProvided content : {content}")
                 print(f"Cipher  version  : {cipher_content}")
+                input("\nPress any key to comeback to menu....")
+                os.system("cls")
             case 2:
                 file_handler.update_cipher_objs(filepath = filepath, content = cipher_content)
                 file_handler.append(filepath, cipher_content)
@@ -130,12 +140,11 @@ class Menu:
 
     @staticmethod
     def choice_after_cipher_file() -> int:
-
-        print("----------------")
-        print("Your options for further content processing :")
+        os.system("cls")
+        print("\nYour options for further content processing :\n")
         print("1. Simply show cipher version")
-        print("2. Save to same location\n")
-        print("2. Save to new location\n")
+        print("2. Save to same location")
+        print("3. Save to new location\n")
 
         choice = input("Your choice : ")
         while choice not in ["1", "2", "3"]:
@@ -146,8 +155,7 @@ class Menu:
     @staticmethod
     def choice_after_cipher_text() -> int:
 
-        print("----------------")
-        print("Your options for further content processing :")
+        print("\nYour options for further content processing :\n")
         print("1. Simply show cipher version")
         print("2. Save to new location\n")
 
@@ -174,12 +182,13 @@ class Menu:
         return filepath
 
     def cipher_from_provided_text(self, cipher : CipherAlgorithm, file_handler : FileHandler):
+
         cipher.show_tutorial()
         content = input("Provide text to cipher : ")
         content = cipher.check_input(content)
         method = cipher.method_choice()
         cipher_content = cipher.cipher_manager(content = content, method = method)
-        print(f"Correspond cipher version : {cipher_content}")
+        os.system("cls")
 
         match self.choice_after_cipher_text():
             case 1:
@@ -191,6 +200,10 @@ class Menu:
                 filepath = input("Provide file path : ")
                 filepath = self.check_filepath(filepath, file_handler)
                 file_handler.update_non_cipher_objs(filepath = filepath, content = content)
+            case 3:
+                pass
+            case _:
+                pass
 
 
 

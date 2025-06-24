@@ -1,6 +1,59 @@
 import string
 import time
 from text import Text
+from abc import ABC, abstractmethod
+import os
+
+"""
+ContentValidator
+UserInterface
+CipherStrategy
+ROT17Strategy(CipherStrategy)
+CipherFactory
+CipherManager -> uruchamia, userInterface w sobie itd. 
+"""
+
+class CipherManager:
+    pass
+
+
+class CipherStrategy(ABC):
+
+    @abstractmethod
+    def encrypt(self):
+        pass
+
+    @abstractmethod
+    def decrypt(self):
+        pass
+
+    @abstractmethod
+    def get_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def validate_content(self, content: str) -> str:
+        pass
+
+
+
+
+class ROT13Strategy(CipherStrategy):
+
+    def encrypt(self):
+        pass
+
+    def decrypt(self):
+        pass
+
+    def get_name(self) -> str:
+        pass
+
+    def validate_content(self, content: str) -> str:
+        pass
+
+
+
 
 class CipherAlgorithm:
 
@@ -10,6 +63,7 @@ class CipherAlgorithm:
 
     @staticmethod
     def show_tutorial():
+        os.system("cls")
         print("\n")
         print(" * for method rot13 provide  content that contains only letters A-Z not even space allowed\n")
         print(" * for method rot47 provide only content that contains ASCII characters\n\n")
@@ -41,7 +95,7 @@ class CipherAlgorithm:
         for (char_, pos_) in zip(non_latin_chars, non_latin_index):
             print(f"{char_} : {pos_}")
         print("\n")
-        replace = input("Change above occurrences with '*' ? YES\\NO : ")
+        replace = input("Change above occurrences with '*' ?  YES \\ NO  : ")
         print("\n")
 
         if replace:
@@ -51,9 +105,6 @@ class CipherAlgorithm:
             non_cipher_content_replaced = "".join(non_cipher_content_replaced)
         else:
             raise ValueError("User abort cipher")
-
-        print(f"Provided content after correction : \n")
-        print(f"  {non_cipher_content_replaced}\n")
 
         return non_cipher_content_replaced
 
@@ -112,9 +163,10 @@ class CipherAlgorithm:
 
         if method == "rot13":
             cipher_content = self.perform_rot13(content)
-        else:
+        elif method == "rot47":
             cipher_content = self.perform_rot47(content)
-
+        else:
+            ...
         text_obj = Text()
         print("file has been cipher...")
         time.sleep(2)

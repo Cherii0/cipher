@@ -6,7 +6,6 @@ from text import Text
 TIME_SLEEPER = 2
 
 class FileHandler:
-
     def __init__(self, files_catalog : str):
         self._cipher_objs = dict()
         self._non_cipher_objs = dict()
@@ -56,7 +55,6 @@ class FileHandler:
         if isinstance(filepath, str):
             if isinstance(content, str):
                 text_obj = Text(content)
-                print(self._non_cipher_objs)
                 self._non_cipher_objs.update({filepath : text_obj})
 
     @staticmethod
