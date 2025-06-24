@@ -1,5 +1,7 @@
 import string
 import time
+
+from file_handler import FileHandler
 from text import Text
 from abc import ABC, abstractmethod
 import os
@@ -57,7 +59,8 @@ class ROT13Strategy(CipherStrategy):
 
 class CipherAlgorithm:
 
-    def __init__(self):
+    def __init__(self, file_handler : FileHandler):
+        self.file_handler = file_handler
         self.rot13_offset = 13
         self.rot_methods = ["rot13", "rot17"]
 

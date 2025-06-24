@@ -26,22 +26,22 @@ class FileHandler:
     @property
     def cipher_filepaths(self):
         self._cipher_filepaths.clear()
-        for obj in self.cipher_objs:
-            self._cipher_filepaths.append(obj.key())
+        for filepath in self.cipher_objs.keys():
+            self._cipher_filepaths.append(filepath)
         return self._cipher_filepaths
 
     @property
     def non_cipher_filepaths(self):
         self._non_cipher_filepaths.clear()
-        for obj in self.non_cipher_objs:
-            self.non_cipher_filepaths.append(obj.key())
+        for filepath in self.non_cipher_objs.keys():
+            self._non_cipher_filepaths.append(filepath)
         return self._non_cipher_filepaths
 
     @property
     def both_ver_filepaths(self):
         self._non_cipher_filepaths.clear()
-        for obj in self.both_ver_objs:
-            self._both_ver_filepaths.append(obj.key())
+        for filepath in self.both_ver_objs.keys():
+            self._both_ver_filepaths.append(filepath)
         return self._both_ver_filepaths
 
     @property
@@ -56,7 +56,14 @@ class FileHandler:
 
 
 
-
+    def update_both_ver_objs(self, **kwargs):
+        filepath = kwargs.get("filepath")
+        content = kwargs.get("content")
+        method = kwargs.get("method")
+        if isinstance(filepath, str):
+            if isinstance(content, str):
+                text_obj = Text(_content = content, _rot_type=method, _encrypted=True)
+                self.both_ver_objs.update({filepath : text_obj})
 
 
 
@@ -67,16 +74,17 @@ class FileHandler:
         if isinstance(filepath, str):
             if isinstance(content, str):
                 text_obj = Text(_content = content, _rot_type=method, _encrypted=True)
-                self._non_cipher_objs.update({filepath : text_obj})
+                self.cipher_objs.update({filepath : text_obj})
 
 
     def update_non_cipher_objs(self, **kwargs):
+        """creation Text object """
         filepath = kwargs.get("filepath")
         content = kwargs.get("content")
         if isinstance(filepath, str):
             if isinstance(content, str):
-                text_obj = Text(content)
-                self._non_cipher_objs.update({filepath : text_obj})
+                text_obj = Text(_content = content, _encrypted=False)
+                self.non_cipher_objs.update({filepath : text_obj})
 
     @staticmethod
     def append(filepath : str, content : str):

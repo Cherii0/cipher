@@ -5,8 +5,8 @@ from manager import Manager
 
 def main():
     file_handler = FileHandler("../cipher_files")
-    cipher = CipherAlgorithm()
-    menu = Menu(file_handler=file_handler)
+    cipher = CipherAlgorithm(file_handler=file_handler)
+    menu = Menu(file_handler=file_handler, cipher = cipher)
     manager = Manager(menu, file_handler, cipher)
     manager.execute()
 

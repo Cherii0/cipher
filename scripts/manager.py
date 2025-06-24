@@ -20,7 +20,7 @@ class Manager:
                 case 1:
                     self.menu.managed_files()
                 case 2:
-                    self.menu.cipher(self.cipher, self.file_handler)
+                    self.menu.cipher()
                 case 3:
                     self.menu.decipher()
                 case 4:
