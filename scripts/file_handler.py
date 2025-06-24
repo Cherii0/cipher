@@ -7,36 +7,57 @@ TIME_SLEEPER = 2
 
 class FileHandler:
     def __init__(self, files_catalog : str):
-        self._cipher_objs = dict()
-        self._non_cipher_objs = dict()
+        self.files_catalog = files_catalog
+
+        # collections of objects
+        self.cipher_objs = dict()
+        self.non_cipher_objs = dict()
+        self.both_ver_objs = dict()
+
 
         # collections for file system - stores filepath not actual objects
-        self._both_versions_filepaths = list()
-        self._unknown_status_filepaths = list()
-        self.files_catalog = files_catalog
+        self._cipher_filepaths = []
+        self._non_cipher_filepaths = []
+        self._both_ver_filepaths = []
+        self._untracked_filepaths = []
 
     # GETTERS
 
     @property
     def cipher_filepaths(self):
-        # self._cipher_objs = sorted(self._non_cipher_objs.items())
-        return self._cipher_objs
+        self._cipher_filepaths.clear()
+        for obj in self.cipher_objs:
+            self._cipher_filepaths.append(obj.key())
+        return self._cipher_filepaths
 
     @property
-    def non_cipher_objs(self):
-        self._non_cipher_objs = sorted(self._non_cipher_objs.items())
-        return self._non_cipher_objs
+    def non_cipher_filepaths(self):
+        self._non_cipher_filepaths.clear()
+        for obj in self.non_cipher_objs:
+            self.non_cipher_filepaths.append(obj.key())
+        return self._non_cipher_filepaths
 
     @property
-    def both_versions_filepaths(self):
-        self._both_versions_filepaths.sort()
-        return self._both_versions_filepaths
+    def both_ver_filepaths(self):
+        self._non_cipher_filepaths.clear()
+        for obj in self.both_ver_objs:
+            self._both_ver_filepaths.append(obj.key())
+        return self._both_ver_filepaths
 
     @property
-    def unknown_status_filepaths(self):
-        self.update_unknown_filepaths()
-        self._unknown_status_filepaths.sort()
-        return self._unknown_status_filepaths
+    def untracked_filepaths(self):
+        self._untracked_filepaths.clear()
+        filepaths = self.collect_all_filepaths()
+        tracked = self.cipher_filepaths + self.non_cipher_filepaths + self.both_ver_filepaths
+        for filepath in filepaths:
+            if filepaths not in tracked:
+                self._untracked_filepaths.append(filepath)
+        return self._untracked_filepaths
+
+
+
+
+
 
 
     def update_cipher_objs(self, **kwargs):

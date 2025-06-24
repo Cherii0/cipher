@@ -9,6 +9,7 @@ from cipher import CipherAlgorithm
 class Menu:
     def __init__(self, file_handler):
         self.file_handler = file_handler
+
     @staticmethod
     def menu():
         print("---------------------")
@@ -22,51 +23,50 @@ class Menu:
         print("---------------------")
 
 
-    def managed_files(self, file_handler : FileHandler):
-        self.show_cipher_files(file_handler)
-        self.show_non_cipher_files(file_handler)
-        self.show_both_version_files(file_handler)
-        self.show_unknown_status_files(file_handler)
+    def managed_files(self):
+        print("\n")
+        self.show_cipher_files()
+        self.show_non_cipher_files()
+        self.show_both_version_files()
+        self.show_untracked_files()
+        input("\nPress any key to comeback to menu...")
+        os.system("cls")
 
-    @staticmethod
-    def show_cipher_files(file_handler : FileHandler) -> None:
+    def show_cipher_files(self) -> None:
         print("--------  CIPHER  ---------")
         print("\n")
-        if file_handler.cipher_filepaths:
-            for filepath in file_handler.cipher_filepaths:
+        if self.file_handler.cipher_filepaths:
+            for filepath in self.file_handler.cipher_filepaths:
                 print(f"    * file  {filepath}" )
         else:
             print(f" * no cipher files in this system session")
         print("\n")
 
-    @staticmethod
-    def show_non_cipher_files(file_handler : FileHandler) -> None:
+    def show_non_cipher_files(self) -> None:
         print("------  NON CIPHER  -------")
         print("\n")
-        if file_handler.non_cipher_filepaths:
-            for filepath in file_handler.non_cipher_filepaths:
+        if self.file_handler.non_cipher_filepaths:
+            for filepath in self.file_handler.non_cipher_filepaths:
                 print(f"    * file  {filepath}" )
         else:
             print(f" * no decipher files in this system session")
         print("\n")
 
-    @staticmethod
-    def show_both_version_files(file_handler : FileHandler) -> None:
+    def show_both_version_files(self) -> None:
         print("------  BOTH VERSIONS  ------")
         print("\n")
-        if file_handler.both_versions_filepaths:
-            for filepath in file_handler.both_versions_filepaths:
+        if self.file_handler.both_ver_filepaths:
+            for filepath in self.file_handler.both_ver_filepaths:
                 print(f"    * file  {filepath}" )
         else:
             print(f" * no both versions files in this system session")
         print("\n")
 
-    @staticmethod
-    def show_unknown_status_files(file_handler : FileHandler) -> None:
-        print("------  UNKNOWN STATUS  ------")
+    def show_untracked_files(self) -> None:
+        print("------  UNTRACKED FILES  ------")
         print("\n")
-        if file_handler.unknown_status_filepaths:
-            for filepath in file_handler.unknown_status_filepaths:
+        if self.file_handler.untracked_filepaths:
+            for filepath in self.file_handler.untracked_filepaths:
                 print(f"    * file  {filepath}" )
         else:
             print(f" * no unknown status files in this system session")
@@ -205,24 +205,6 @@ class Menu:
             case _:
                 pass
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def decipher(self):
-        pass
 
     @staticmethod
     def about():

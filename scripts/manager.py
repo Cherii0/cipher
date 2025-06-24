@@ -18,7 +18,7 @@ class Manager:
             os.system("cls")
             match choice:
                 case 1:
-                    self.menu.managed_files(self.file_handler)
+                    self.menu.managed_files()
                 case 2:
                     self.menu.cipher(self.cipher, self.file_handler)
                 case 3:
