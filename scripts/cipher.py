@@ -154,9 +154,6 @@ class CipherAlgorithm:
             else:
                 cipher_content.append(latin_codes_dict[code_])
 
-        input(".")
-
-
         return "".join(cipher_content)
 
     def perform_rot47(self, content : str) -> str:
