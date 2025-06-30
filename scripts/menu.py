@@ -158,8 +158,8 @@ class Menu:
 
         print("\nYour options for further content processing :\n")
         print("1. Simply show both version")
-        print("2. Save only non cipher to new location")
-        print("3. Save only to new cipher location")
+        print("2. Save only to non cipher new location")
+        print("3. Save only to cipher new location")
         print("4. Save to separate cipher and non cipher locations")
         print("5. Save into one file both versions\n")
 
@@ -227,7 +227,10 @@ class Menu:
                 # create text objs and save into one new locations
                 filepath = input("Provide file path for both versions : ")
                 filepath = self.check_filepath(filepath)
-                self.file_handler.update_both_ver_objs(filepath = filepath, content = content+cipher_content)
+                content = content + "\n" +cipher_content
+                self.file_handler.update_both_ver_objs(filepath=filepath, content=content)
+                self.file_handler.write(filepath = filepath, content = content)
+
             case _:
                 pass
 
