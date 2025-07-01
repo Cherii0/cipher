@@ -110,16 +110,18 @@ class Menu:
             filepath = input("Provide proper filepath to cipher : ")
 
         content = self.file_handler.read_file(filepath)
-        self.file_handler.update_non_cipher_objs(filepath = filepath, content = content)
+
         time.sleep(1)
         os.system("cls")
 
-        content = self.cipher.check_input(content)
+        method = self.cipher_.method_choice()
+        cipher_content = self.cipher_.cipher_manager(method = method, content = content)
+
+        content = self.cipher_.check_input(content)
         os.system("cls")
         print(f"Provided content after correction : \n")
         print(f"  {content}\n")
-        method = self.cipher.method_choice()
-        cipher_content = self.cipher.cipher_manager(method = method, content = content)
+
 
         match self.choice_after_cipher_file():
             case 1:

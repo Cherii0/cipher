@@ -112,12 +112,14 @@ class CipherAlgorithm:
         return non_cipher_content_replaced
 
 
+
     def perform_rot13(self, content : str) -> str:
         """
         the actual cipher algorithm, takes decipher content and returns cipher version
         """
         latin_bgn = 0
         latin_end = 26
+
 
         latin_codes = [c for c in range(latin_bgn, latin_end)]
         # [0, 1, 2 ... 25] # 26 total = 26 latin letters
@@ -130,26 +132,25 @@ class CipherAlgorithm:
         # , 12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'q', 17: 'r', 18: 's', 19: 't', 20: 'u', 21: 'v', 22: 'w',
         # 23: 'x', 24: 'y', 25: 'z'}
 
-
-
         non_cipher_content_codes = []
         for char_ in content:
-            if char_ != "*":
+            if char_ in latin_letters_dict:
                 non_cipher_content_codes.append(latin_letters_dict[char_])
             else:
                 non_cipher_content_codes.append(None)
 
         cipher_content_codes = []
         for code_ in non_cipher_content_codes:
-            if code_ < self.rot13_offset:
+            if code_ is None:
+                cipher_content_codes.append("*")
+            elif code_ < self.rot13_offset:
                 cipher_content_codes.append(code_ + self.rot13_offset)
             else:
                 cipher_content_codes.append(code_ - self.rot13_offset)
 
         cipher_content = []
         for code_ in cipher_content_codes:
-
-            if not code_:
+            if code_ is None:
                 cipher_content.append("*")
             else:
                 cipher_content.append(latin_codes_dict[code_])
@@ -172,6 +173,8 @@ class CipherAlgorithm:
         runs chosen rot cipher method
         """
 
+
+
         if method == "rot13":
             cipher_content = self.perform_rot13(content)
         elif method == "rot47":
@@ -181,4 +184,8 @@ class CipherAlgorithm:
         text_obj = Text()
         print("file has been cipher...")
         time.sleep(2)
+
+
+
         return cipher_content
+
