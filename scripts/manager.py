@@ -1,11 +1,11 @@
 import os
 from file_handler import FileHandler
-from cipher import CipherAlgorithm
+from cipher import CipherManager
 from menu import Menu
 
 class Manager:
 
-    def __init__(self, menu : Menu, file_h : FileHandler, cipher : CipherAlgorithm):
+    def __init__(self, menu : Menu, file_h : FileHandler, cipher : CipherManager):
         self.file_handler = file_h
         self.menu = menu
         self.cipher = cipher

@@ -4,12 +4,14 @@ import os
 import time
 
 from file_handler import FileHandler
-from cipher import CipherAlgorithm
+from cipher import CipherManager
+from cipher import CipherManager
+
 
 class Menu:
-    def __init__(self, file_handler : FileHandler, cipher : CipherAlgorithm):
+    def __init__(self, file_handler : FileHandler, cipher : CipherManager):
         self.file_handler = file_handler
-        self.cipher_ = cipher
+        self.cipher_manager = cipher
 
     @staticmethod
     def menu():
@@ -100,6 +102,7 @@ class Menu:
 
 
     def cipher_from_filesystem(self):
+
         os.system("cls")
         print("Avaliable files in directory : \n")
         avaliable_filepaths = self.file_handler.non_cipher_filepaths + self.file_handler.untracked_filepaths
@@ -114,12 +117,7 @@ class Menu:
         time.sleep(1)
         os.system("cls")
 
-        content = self.cipher.check_input(content)
-        os.system("cls")
-        print(f"Provided content after correction : \n")
-        print(f"  {content}\n")
-        method = self.cipher.method_choice()
-        cipher_content = self.cipher.cipher_manager(method = method, content = content)
+        content, cipher_content = CipherManager()
 
         match self.choice_after_cipher_file():
             case 1:
@@ -186,11 +184,7 @@ class Menu:
 
     def cipher_from_provided_text(self):
 
-        self.cipher_.show_tutorial()
-        content = input("Provide text to cipher : ")
-        content = self.cipher_.check_input(content)
-        method = self.cipher_.method_choice()
-        cipher_content = self.cipher_.cipher_manager(content = content, method = method)
+        content, cipher_content = CipherManager.encrypt_from_given_content()
         os.system("cls")
 
         match self.choice_after_cipher_text():

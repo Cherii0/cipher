@@ -15,54 +15,7 @@ CipherFactory
 CipherManager -> uruchamia, userInterface w sobie itd. 
 """
 
-class CipherManager:
-    pass
-
-
-class CipherStrategy(ABC):
-
-    @abstractmethod
-    def encrypt(self):
-        pass
-
-    @abstractmethod
-    def decrypt(self):
-        pass
-
-    @abstractmethod
-    def get_name(self) -> str:
-        pass
-
-    @abstractmethod
-    def validate_content(self, content: str) -> str:
-        pass
-
-
-
-
-class ROT13Strategy(CipherStrategy):
-
-    def encrypt(self):
-        pass
-
-    def decrypt(self):
-        pass
-
-    def get_name(self) -> str:
-        pass
-
-    def validate_content(self, content: str) -> str:
-        pass
-
-
-
-
-class CipherAlgorithm:
-
-    def __init__(self, file_handler : FileHandler):
-        self.file_handler = file_handler
-        self.rot13_offset = 13
-        self.rot_methods = ["rot13", "rot17"]
+class UserInterface:
 
     @staticmethod
     def show_tutorial():
@@ -72,16 +25,107 @@ class CipherAlgorithm:
         print(" * for method rot47 provide only content that contains ASCII characters\n\n")
 
     @staticmethod
-    def check_input(content : str) -> str:
+    def method_choice() -> int:
+
+        methods = [method.name for method in CipherManager.cipher_methods.values()]
+        # [ rot13, rot47 ... ]
+
+        print(" -  METHODS AVALIABLE  - \n\n")
+        for idx, method in enumerate(methods, start = 1):
+            print(f"{idx}. {method}\n")
+
+        method_choice = input("Your method declaration : ")
+
+        while int(method_choice) not in range(1, len(methods)+1):
+            method_choice = input("Your method declaration : ")
+
+        return int(method_choice)
+
+    @staticmethod
+    def provide_content():
+        content = input("Provide text to cipher : ")
+        return content
+
+
+
+
+class CipherStrategy(ABC):
+
+    @abstractmethod
+    def encrypt(self, content : str) -> str:
+        pass
+
+    @abstractmethod
+    def decrypt(self):
+        pass
+
+    @abstractmethod
+    def get_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def validate_content(self, content : str) -> str:
+        pass
+
+
+
+
+class ROT13Strategy(CipherStrategy):
+
+    def __init__(self):
+        self.offset = 13
+        self.name = "rot13"
+
+    def decrypt(self):
+        pass
+
+    def get_name(self) -> str:
+        return self.name
+
+    def encrypt(self, content : str) -> str:
+        """
+        the actual cipher algorithm, takes decipher content and returns cipher version
+        """
+
+        latin_bgn, latin_end = 0, 26
+
+        latin_codes = [c for c in range(latin_bgn, latin_end)]
+        # [0, 1, 2 ... 25] # 26 total = 26 latin letters
+
+        latin_letters_dict = {char_: code_ for (char_, code_) in zip(string.ascii_lowercase, latin_codes)}
+        # {'a': 0, 'b': 1, ... 'z': 25}
+
+        latin_codes_dict = {code_ : char_ for (char_, code_) in latin_letters_dict.items()}
+        # {0: 'a', 1: 'b' ... 25: 'z'}
+
+        non_cipher_content_codes = [] # 0, 24, 21, 11 etc
+        for char_ in content:
+            non_cipher_content_codes.append(latin_letters_dict.get(char_))
+
+        cipher_content_codes = [] # 0, 12, 13, 21 etc
+
+        for code_ in non_cipher_content_codes:
+            if code_ < self.offset:
+                cipher_content_codes.append(code_ + self.offset)
+            else:
+                cipher_content_codes.append(code_ - self.offset)
+
+        cipher_content = []
+        for code_ in cipher_content_codes:
+            cipher_content.append(latin_codes_dict[code_])
+
+        return "".join(cipher_content)
+
+    def validate_content(self, content : str) -> str:
         """
         returns original or adjusted content
         """
         if not content:
             raise ValueError("No content to cipher provided")
 
-        non_latin_chars = []
-        non_latin_index = []
+        non_latin_chars, non_latin_index = [], []
 
+        # checks if content contains any no allowed chars
         for (idx, c) in enumerate(content, start=0):
             if c not in string.ascii_lowercase:
                 if c == " ":
@@ -112,60 +156,27 @@ class CipherAlgorithm:
         return non_cipher_content_replaced
 
 
-    def perform_rot13(self, content : str) -> str:
-        """
-        the actual cipher algorithm, takes decipher content and returns cipher version
-        """
-        latin_bgn = 0
-        latin_end = 26
+class CipherManager:
+    cipher_methods = {1: ROT13Strategy()}
 
-        latin_codes = [c for c in range(latin_bgn, latin_end)]
-        # [0, 1, 2 ... 25] # 26 total = 26 latin letters
-        latin_letters_dict = {char_: code_ for (char_, code_) in zip(string.ascii_lowercase, latin_codes)}
-        # {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9, 'k': 10, 'l': 11,
-        # 'm': 12, 'n': 13, 'o': 14, 'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21, 'w': 22,
-        # 'x': 23, 'y': 24, 'z': 25}
-        latin_codes_dict = {code_ : char_ for (char_, code_) in latin_letters_dict.items()}
-        # {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j', 10: 'k', 11: 'l'
-        # , 12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'q', 17: 'r', 18: 's', 19: 't', 20: 'u', 21: 'v', 22: 'w',
-        # 23: 'x', 24: 'y', 25: 'z'}
+    @staticmethod
+    def encrypt_from_given_content() -> tuple:
+        UserInterface.show_tutorial()
+        method_choice = UserInterface.method_choice()
+
+        match method_choice:
+            case 1:
+                method = CipherManager.cipher_methods.get(1)
+            case _:
+                pass
+
+        content = UserInterface.provide_content()
+        content = method.validate_content(content)
+        cipher_content = method.encrypt(content)
+
+        return content, cipher_content
 
 
-
-        non_cipher_content_codes = []
-        for char_ in content:
-            if char_ != "*":
-                non_cipher_content_codes.append(latin_letters_dict[char_])
-            else:
-                non_cipher_content_codes.append(None)
-
-        cipher_content_codes = []
-        for code_ in non_cipher_content_codes:
-            if code_ < self.rot13_offset:
-                cipher_content_codes.append(code_ + self.rot13_offset)
-            else:
-                cipher_content_codes.append(code_ - self.rot13_offset)
-
-        cipher_content = []
-        for code_ in cipher_content_codes:
-
-            if not code_:
-                cipher_content.append("*")
-            else:
-                cipher_content.append(latin_codes_dict[code_])
-
-        return "".join(cipher_content)
-
-    def perform_rot47(self, content : str) -> str:
-        pass
-
-    def method_choice(self) -> str:
-        method_choice = input("Your method declaration rot13/rot47: ")
-
-        while method_choice not in self.rot_methods:
-            method_choice = input("Your method declaration rot13/rot47: ")
-
-        return method_choice
 
     def cipher_manager(self, * , method : str, content : str) -> str:
         """
