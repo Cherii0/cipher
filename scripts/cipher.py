@@ -7,12 +7,8 @@ from abc import ABC, abstractmethod
 import os
 
 """
-ContentValidator
-UserInterface
-CipherStrategy
-ROT17Strategy(CipherStrategy)
+
 CipherFactory
-CipherManager -> uruchamia, userInterface w sobie itd. 
 """
 
 class UserInterface:
@@ -85,6 +81,7 @@ class ROT13Strategy(CipherStrategy):
     def encrypt(self, content : str) -> str:
         """
         the actual cipher algorithm, takes decipher content and returns cipher version
+        Input : string with only ascii letters and " * "
         """
 
         latin_bgn, latin_end = 0, 26
@@ -102,17 +99,22 @@ class ROT13Strategy(CipherStrategy):
         for char_ in content:
             non_cipher_content_codes.append(latin_letters_dict.get(char_))
 
-        cipher_content_codes = [] # 0, 12, 13, 21 etc
+        cipher_content_codes = [] # 0, 12, None, 13, 21 etc
 
         for code_ in non_cipher_content_codes:
-            if code_ < self.offset:
+            if code_ is None:
+                continue
+            elif code_ < self.offset:
                 cipher_content_codes.append(code_ + self.offset)
             else:
                 cipher_content_codes.append(code_ - self.offset)
 
         cipher_content = []
         for code_ in cipher_content_codes:
-            cipher_content.append(latin_codes_dict[code_])
+            if code_ is None:
+                cipher_content.append("*")
+            else:
+                cipher_content.append(latin_codes_dict[code_])
 
         return "".join(cipher_content)
 
@@ -177,19 +179,18 @@ class CipherManager:
         return content, cipher_content
 
 
+    @staticmethod
+    def encrypt_from_filesystem(content_ : str) -> str:
+        UserInterface.show_tutorial()
+        method_choice = UserInterface.method_choice()
 
-    def cipher_manager(self, * , method : str, content : str) -> str:
-        """
-        runs chosen rot cipher method
-        """
+        match method_choice:
+            case 1:
+                method = CipherManager.cipher_methods.get(1)
+            case _:
+                pass
 
-        if method == "rot13":
-            cipher_content = self.perform_rot13(content)
-        elif method == "rot47":
-            cipher_content = self.perform_rot47(content)
-        else:
-            ...
-        text_obj = Text()
-        print("file has been cipher...")
-        time.sleep(2)
+        content = method.validate_content(content_)
+        cipher_content = method.encrypt(content)
         return cipher_content
+

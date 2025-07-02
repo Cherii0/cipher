@@ -117,7 +117,7 @@ class Menu:
         time.sleep(1)
         os.system("cls")
 
-        content, cipher_content = CipherManager()
+        cipher_content = CipherManager.encrypt_from_filesystem(content)
 
         match self.choice_after_cipher_file():
             case 1:
@@ -131,7 +131,7 @@ class Menu:
                 self.file_handler.append(filepath, cipher_content)
             case 3:
                 filepath = input("Provide file path : ")
-                filepath = self.check_filepath(filepath, self.file_handler)
+                filepath = self.check_filepath(filepath)
                 self.file_handler.update_cipher_objs(filepath = filepath, content = cipher_content)
                 self.file_handler.write(filepath = filepath, content = cipher_content)
 
