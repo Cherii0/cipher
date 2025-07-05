@@ -2,9 +2,7 @@ import sys
 import re
 import os
 import time
-
 from file_handler import FileHandler
-from cipher import CipherManager
 from cipher import CipherManager
 
 
@@ -12,19 +10,234 @@ class Menu:
     def __init__(self, file_handler : FileHandler, cipher : CipherManager):
         self.file_handler = file_handler
         self.cipher_manager = cipher
+        self.content = None
+        self.cipher_content = None
+
+    # ---------------------------------------- CIPHER METHODS ----------------------------------------
+
+    def cipher(self):
+        """
+        decide how user will provide content
+        args : None
+        return : None
+        """
+        match Menu.show_cipher_options():
+            case 1:
+                self.cipher_from_provided_text()
+            case 2:
+                self.cipher_from_filesystem()
+
+
 
     @staticmethod
-    def menu():
+    def show_cipher_options() -> int:
         print("---------------------")
-        print("|        MENU       |")
+        print("|      CIPHER       |")
         print("---------------------")
-        print("1. managed files")
-        print("2. cipher")
-        print("3. decipher")
-        print("4. about program")
-        print("5. exit")
+        print("1. from provided text")
+        print("2. from file system")
         print("---------------------")
+        choice = input("Your choice : ")
+        while choice not in ["1", "2"]:
+            choice = input("Type proper choice : ")
+        return int(choice)
 
+
+
+    def cipher_from_provided_text(self):
+        """
+        runs cipher manager, stores both versions and decide which saving option execute
+        parameters : None
+        return : None
+        """
+        self.content, self.cipher_content = CipherManager.encrypt_from_given_content()
+        os.system("cls")
+        match self.choice_after_cipher_text():
+            case 1:
+                self.show_both_versions()
+            case 2:
+                self.save_noncipher()
+            case 3:
+                self.save_cipher()
+            case 4:
+                self.save_both_sep_loc()
+            case 5:
+               self.save_both_same_loc()
+            case _:
+                pass
+
+        print("Operation done successfully... ")
+        time.sleep(1.5)
+        os.system("cls")
+
+
+    @staticmethod
+    def choice_after_cipher_text() -> int:
+
+        print("\nYour options for further content processing :\n")
+        print("1. Simply show both version")
+        print("2. Save only non cipher to new location")
+        print("3. Save only to new cipher location")
+        print("4. Save to separate cipher and non cipher locations")
+        print("5. Save into one file both versions\n")
+
+        choice = input("Your choice : ")
+        while choice not in ["1", "2", "3", "4", "5"]:
+            choice = input("Your choice : ")
+        os.system("cls")
+        return int(choice)
+
+    def show_both_versions(self):
+        print(f"\nProvided content : {self.content}")
+        print(f"Cipher  version  : {self.cipher_content}")
+        input("\n\nPress any key to come back to menu... ")
+        os.system("cls")
+
+    def save_noncipher(self):
+        # create non cipher text object and save into new location
+        filepath = input("Provide file path for non cipher version : ")
+        filepath = self.check_filepath(filepath)
+        self.file_handler.update_non_cipher_objs(filepath = filepath, content = self.content)
+        self.file_handler.write(filepath = filepath, content = self.content)
+
+    def save_cipher(self):
+            # create cipher text object and save into new location
+            filepath = input("Provide file path for cipher version : ")
+            filepath = self.check_filepath(filepath)
+            self.file_handler.update_cipher_objs(filepath = filepath, content = self.content)
+            self.file_handler.write(filepath = filepath, content = self.cipher_content)
+
+    def save_both_sep_loc(self):
+        # create text objs and save into separate new locations
+        # create non cipher text object and save into new location
+        filepath = input("Provide file path for non cipher version : ")
+        filepath = self.check_filepath(filepath)
+        self.file_handler.update_non_cipher_objs(filepath = filepath, content = self.content)
+        self.file_handler.write(filepath = filepath, content = self.content)
+            # saving cipher into new location
+        filepath = input("Provide file path for cipher version : ")
+        filepath = self.check_filepath(filepath)
+        self.file_handler.update_cipher_objs(filepath = filepath, content = self.cipher_content)
+        self.file_handler.write(filepath = filepath, content = self.cipher_content)
+
+
+    def save_both_same_loc(self):
+        # create text objs and save into one new locations
+        filepath = input("Provide file path for both versions : ")
+        filepath = self.check_filepath(filepath)
+        self.file_handler.update_both_ver_objs(filepath = filepath, content = self.content+self.cipher_content)
+
+
+
+
+    def cipher_from_filesystem(self):
+        filepath = self.file_choice()
+        self.read_file(filepath)
+        cipher_content = CipherManager.encrypt_from_filesystem(self.content)
+        choice = Menu.choices_after_cipher_file()
+        self.after_cipher_file(choice, filepath)
+
+
+    def file_choice(self):
+        os.system("cls")
+        print("Avaliable files in directory : \n")
+        avaliable_filepaths = self.file_handler.non_cipher_filepaths + self.file_handler.untracked_filepaths
+        for filepath in avaliable_filepaths:
+            print(f"* {filepath}")
+        filepath = input("\nProvide filepath to cipher : ")
+        while filepath not in avaliable_filepaths:
+            filepath = input("Provide proper filepath to cipher : ")
+        return filepath
+
+    def read_file(self, filepath : str):
+        content = self.file_handler.read_file(filepath)
+        self.file_handler.update_non_cipher_objs(filepath = filepath, content = content)
+        time.sleep(1)
+        os.system("cls")
+
+
+    @staticmethod
+    def choices_after_cipher_file() -> int:
+        os.system("cls")
+        print("\nYour options for further content processing :\n")
+        print("1. Simply show cipher version")
+        print("2. Save to same location")
+        print("3. Save to new location\n")
+
+        choice = input("Your choice : ")
+        while choice not in ["1", "2", "3"]:
+            choice = input("Your choice : ")
+        return int(choice)
+
+
+    def after_cipher_file(self, choice : int, filepath : str):
+        match choice:
+            case 1:
+                self.show_both_versions()
+            case 2:
+                self.file_handler.update_cipher_objs(filepath = filepath, content = self.cipher_content)
+                self.file_handler.append(filepath, self.cipher_content)
+            case 3:
+                filepath = input("Provide file path : ")
+                filepath = self.check_filepath(filepath)
+                self.file_handler.update_cipher_objs(filepath = filepath, content = self.cipher_content)
+                self.file_handler.write(filepath = filepath, content = self.cipher_content)
+
+
+    # ---------------------------------------- DECIPHER METHODS ----------------------------------------
+
+    # ---------------------------------------- MANAGE FILES METHODS ----------------------------------------
+
+    def managed_files(self):
+        print("\n")
+        self.show_cipher_files()
+        self.show_non_cipher_files()
+        self.show_both_version_files()
+        self.show_untracked_files()
+        input("\nPress any key to comeback to menu...")
+        os.system("cls")
+
+    def show_cipher_files(self) -> None:
+        print("--------  CIPHER  ---------")
+        print("\n")
+        if self.file_handler.cipher_filepaths:
+            for filepath in self.file_handler.cipher_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no cipher files in this system session")
+        print("\n")
+
+    def show_non_cipher_files(self) -> None:
+        print("------  NON CIPHER  -------")
+        print("\n")
+        if self.file_handler.non_cipher_filepaths:
+            for filepath in self.file_handler.non_cipher_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no decipher files in this system session")
+        print("\n")
+
+    def show_both_version_files(self) -> None:
+        print("------  BOTH VERSIONS  ------")
+        print("\n")
+        if self.file_handler.both_ver_filepaths:
+            for filepath in self.file_handler.both_ver_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no both versions files in this system session")
+        print("\n")
+
+    def show_untracked_files(self) -> None:
+        print("------  UNTRACKED FILES  ------")
+        print("\n")
+        if self.file_handler.untracked_filepaths:
+            for filepath in self.file_handler.untracked_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no unknown status files in this system session")
+        print("\n")
+
+# ---------------------------------------- MANAGE FILES METHODS ----------------------------------------
 
     def managed_files(self):
         print("\n")
@@ -77,95 +290,37 @@ class Menu:
 
 
 
-
-
-
-    def cipher(self):
-        print("---------------------")
-        print("|      CIPHER       |")
-        print("---------------------")
-        print("1. from provided text")
-        print("2. from file system")
-        print("---------------------")
-        choice = input("Your choice : ")
-        while choice not in ["1", "2"]:
-            choice = input("Type proper choice : ")
-
-        match int(choice):
-            case 1:
-                self.cipher_from_provided_text()
-            case 2:
-                self.cipher_from_filesystem()
-
-
-
-
-
-    def cipher_from_filesystem(self):
-
-        os.system("cls")
-        print("Avaliable files in directory : \n")
-        avaliable_filepaths = self.file_handler.non_cipher_filepaths + self.file_handler.untracked_filepaths
-        for filepath in avaliable_filepaths:
-            print(f"* {filepath}")
-        filepath = input("\nProvide filepath to cipher : ")
-        while filepath not in avaliable_filepaths:
-            filepath = input("Provide proper filepath to cipher : ")
-
-        content = self.file_handler.read_file(filepath)
-        self.file_handler.update_non_cipher_objs(filepath = filepath, content = content)
-        time.sleep(1)
-        os.system("cls")
-
-        cipher_content = CipherManager.encrypt_from_filesystem(content)
-
-        match self.choice_after_cipher_file():
-            case 1:
-                os.system("cls")
-                print(f"\n\nProvided content : {content}")
-                print(f"Cipher  version  : {cipher_content}")
-                input("\nPress any key to comeback to menu....")
-                os.system("cls")
-            case 2:
-                self.file_handler.update_cipher_objs(filepath = filepath, content = cipher_content)
-                self.file_handler.append(filepath, cipher_content)
-            case 3:
-                filepath = input("Provide file path : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_cipher_objs(filepath = filepath, content = cipher_content)
-                self.file_handler.write(filepath = filepath, content = cipher_content)
-
-
+    # ---------------------------------------- OTHER MENU METHODS ----------------------------------------
 
     @staticmethod
-    def choice_after_cipher_file() -> int:
-        os.system("cls")
-        print("\nYour options for further content processing :\n")
-        print("1. Simply show cipher version")
-        print("2. Save to same location")
-        print("3. Save to new location\n")
+    def menu():
+        print("---------------------")
+        print("|        MENU       |")
+        print("---------------------")
+        print("1. managed files")
+        print("2. cipher")
+        print("3. decipher")
+        print("4. about program")
+        print("5. exit")
+        print("---------------------")
 
-        choice = input("Your choice : ")
-        while choice not in ["1", "2", "3"]:
-            choice = input("Your choice : ")
-        return int(choice)
 
 
-    @staticmethod
-    def choice_after_cipher_text() -> int:
 
-        print("\nYour options for further content processing :\n")
-        print("1. Simply show both version")
-        print("2. Save only non cipher to new location")
-        print("3. Save only to new cipher location")
-        print("4. Save to separate cipher and non cipher locations")
-        print("5. Save into one file both versions\n")
 
-        choice = input("Your choice : ")
-        while choice not in ["1", "2", "3", "4", "5"]:
-            choice = input("Your choice : ")
-        os.system("cls")
-        return int(choice)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def check_filepath(self, filepath : str) -> str:
 
@@ -182,52 +337,11 @@ class Menu:
 
         return filepath
 
-    def cipher_from_provided_text(self):
 
-        content, cipher_content = CipherManager.encrypt_from_given_content()
-        os.system("cls")
 
-        match self.choice_after_cipher_text():
-            case 1:
-                print(f"\nProvided content : {content}")
-                print(f"Cipher  version  : {cipher_content}")
-                input("\n\nPress any key to come back to menu... ")
-                os.system("cls")
-            case 2:
-                # create non cipher text object and save into new location
-                filepath = input("Provide file path for non cipher version : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_non_cipher_objs(filepath = filepath, content = content)
-                self.file_handler.write(filepath = filepath, content = content)
-            case 3:
-                # create cipher text object and save into new location
-                filepath = input("Provide file path for cipher version : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_cipher_objs(filepath = filepath, content = content)
-                self.file_handler.write(filepath = filepath, content = cipher_content)
-            case 4:
-                # create text objs and save into separate new locations
-                    # create non cipher text object and save into new location
-                filepath = input("Provide file path for non cipher version : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_non_cipher_objs(filepath = filepath, content = content)
-                self.file_handler.write(filepath = filepath, content = content)
-                    # saving cipher into new location
-                filepath = input("Provide file path for cipher version : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_cipher_objs(filepath = filepath, content = cipher_content)
-                self.file_handler.write(filepath = filepath, content = cipher_content)
-            case 5:
-                # create text objs and save into one new locations
-                filepath = input("Provide file path for both versions : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_both_ver_objs(filepath = filepath, content = content+cipher_content)
-            case _:
-                pass
 
-        print("Operation done successfully... ")
-        time.sleep(1.5)
-        os.system("cls")
+
+
 
 
     @staticmethod

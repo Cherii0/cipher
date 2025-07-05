@@ -1,13 +1,8 @@
 import string
-import time
-
-from file_handler import FileHandler
-from text import Text
 from abc import ABC, abstractmethod
 import os
 
 """
-
 CipherFactory
 """
 
@@ -43,6 +38,17 @@ class UserInterface:
         return content
 
 
+    @staticmethod
+    def show_replace_option(non_latin_chars : list, non_latin_index : list) -> bool:
+        print("\n")
+        print("Found non allowed characters at given positions : \n")
+        for (char_, pos_) in zip(non_latin_chars, non_latin_index):
+            print(f"{char_} : {pos_}")
+        print("\n")
+        replace = input("Change above occurrences with '*' ?  YES \\ NO  : ")
+        print("\n")
+        return True if "Yes" else False
+
 
 
 class CipherStrategy(ABC):
@@ -52,7 +58,7 @@ class CipherStrategy(ABC):
         pass
 
     @abstractmethod
-    def decrypt(self):
+    def decrypt(self, content : str) -> str:
         pass
 
     @abstractmethod
@@ -64,15 +70,17 @@ class CipherStrategy(ABC):
         pass
 
 
-
-
 class ROT13Strategy(CipherStrategy):
 
     def __init__(self):
         self.offset = 13
         self.name = "rot13"
+        self.non_latin_chars, self.non_latin_index = [], []
+        self.content = None
+        self.non_latin_chars = []
+        non_latin_chars, non_latin_index = [], []
 
-    def decrypt(self):
+    def decrypt(self, content : str) -> str:
         pass
 
     def get_name(self) -> str:
@@ -125,66 +133,67 @@ class ROT13Strategy(CipherStrategy):
         if not content:
             raise ValueError("No content to cipher provided")
 
-        non_latin_chars, non_latin_index = [], []
+        self.check_content()
 
+        if not self.non_latin_chars:
+            return content
+        else:
+            return self.change_unallowed_characters()
+
+    def check_content(self):
         # checks if content contains any no allowed chars
-        for (idx, c) in enumerate(content, start=0):
+        for (idx, c) in enumerate(self.content, start=0):
             if c not in string.ascii_lowercase:
                 if c == " ":
-                    non_latin_chars.append("space")
+                    self.non_latin_chars.append("space")
                 else:
-                    non_latin_chars.append(c)
-                non_latin_index.append(idx)
+                    self.non_latin_chars.append(c)
+                self.non_latin_index.append(idx)
 
-        if not non_latin_chars:
-            return content
-
-        print("\n")
-        print("Found non allowed characters at given positions : \n")
-        for (char_, pos_) in zip(non_latin_chars, non_latin_index):
-            print(f"{char_} : {pos_}")
-        print("\n")
-        replace = input("Change above occurrences with '*' ?  YES \\ NO  : ")
-        print("\n")
-
-        if replace:
-            non_cipher_content_replaced = list(content)
-            for pos_ in non_latin_index:
+    def change_unallowed_characters(self):
+        # replace not allowed characters with " * "
+        if UserInterface.show_replace_option():
+            non_cipher_content_replaced = list(self.content)
+            for pos_ in self.non_latin_index:
                 non_cipher_content_replaced[pos_] = "*"
             non_cipher_content_replaced = "".join(non_cipher_content_replaced)
         else:
             raise ValueError("User abort cipher")
-
         return non_cipher_content_replaced
-
 
 class CipherManager:
     cipher_methods = {1: ROT13Strategy()}
 
     @staticmethod
     def encrypt_from_given_content() -> tuple:
+        """
+        creates right cipher object and execute cipher methods
+        args : None
+        return : tuple, cipher and non cipher version of the same provided content
+        """
         UserInterface.show_tutorial()
-        method_choice = UserInterface.method_choice()
-
-        match method_choice:
+        match UserInterface.method_choice():
             case 1:
-                method = CipherManager.cipher_methods.get(1)
+                cipher = CipherManager.cipher_methods.get(1)
             case _:
                 pass
 
         content = UserInterface.provide_content()
-        content = method.validate_content(content)
-        cipher_content = method.encrypt(content)
+        content = cipher.validate_content(content)
+        cipher_content = cipher.encrypt(content)
 
         return content, cipher_content
 
 
     @staticmethod
     def encrypt_from_filesystem(content_ : str) -> str:
+        """
+        creates right cipher object and execute cipher methods
+        args : None
+        return : tuple, cipher and non cipher version of the same provided content
+        """
         UserInterface.show_tutorial()
-        method_choice = UserInterface.method_choice()
-
-        match method_choice:
+        match UserInterface.method_choice():
             case 1:
                 method = CipherManager.cipher_methods.get(1)
             case _:
@@ -193,4 +202,3 @@ class CipherManager:
         content = method.validate_content(content_)
         cipher_content = method.encrypt(content)
         return cipher_content
-
