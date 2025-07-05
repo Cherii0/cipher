@@ -1,7 +1,7 @@
 import os
 from file_handler import FileHandler
 from cipher import CipherManager
-from menu.menu import Menu
+from menu import Menu
 
 class Manager:
 

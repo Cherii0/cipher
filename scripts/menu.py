@@ -123,10 +123,12 @@ class Menu:
 
     def save_both_same_loc(self):
         # create text objs and save into one new locations
+        input("ccaca")
         filepath = input("Provide file path for both versions : ")
         filepath = self.check_filepath(filepath)
-        self.file_handler.update_both_ver_objs(filepath = filepath, content = self.content+self.cipher_content)
-
+        content_con = self.content+self.cipher_content
+        self.file_handler.update_both_ver_objs(filepath = filepath, content = content_con)
+        self.file_handler.write(filepath=filepath, content = content_con)
 
 
 

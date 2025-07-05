@@ -130,6 +130,7 @@ class ROT13Strategy(CipherStrategy):
         """
         returns original or adjusted content
         """
+        self.content = content
         if not content:
             raise ValueError("No content to cipher provided")
 
