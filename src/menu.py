@@ -7,7 +7,7 @@ from cipher import CipherManager
 
 
 class Menu:
-    def __init__(self, file_handler : FileHandler, cipher : CipherManager):
+    def __init__(self, file_handler: FileHandler, cipher: CipherManager):
         self.file_handler = file_handler
         self.cipher_manager = cipher
         self.content = None
@@ -21,6 +21,10 @@ class Menu:
         args : None
         return : None
         """
+
+
+
+
         match Menu.show_cipher_options():
             case 1:
                 self.cipher_from_provided_text()
@@ -43,13 +47,19 @@ class Menu:
         return int(choice)
 
 
-
+    # dekorator?
     def cipher_from_provided_text(self):
         """
         runs cipher manager, stores both versions and decide which saving option execute
         parameters : None
         return : None
         """
+
+        # create new cipher object using factory method
+
+        # run objects shift method that covers its class methods - then we dont have to execute all methods
+        # that can differ from eachother
+
         self.content, self.cipher_content = CipherManager.encrypt_from_given_content()
         os.system("cls")
         match self.choice_after_cipher_text():
@@ -101,11 +111,11 @@ class Menu:
         self.file_handler.write(filepath = filepath, content = self.content)
 
     def save_cipher(self):
-            # create cipher text object and save into new location
-            filepath = input("Provide file path for cipher version : ")
-            filepath = self.check_filepath(filepath)
-            self.file_handler.update_cipher_objs(filepath = filepath, content = self.content)
-            self.file_handler.write(filepath = filepath, content = self.cipher_content)
+        # create cipher text object and save into new location
+        filepath = input("Provide file path for cipher version : ")
+        filepath = self.check_filepath(filepath)
+        self.file_handler.update_cipher_objs(filepath = filepath, content = self.content)
+        self.file_handler.write(filepath = filepath, content = self.cipher_content)
 
     def save_both_sep_loc(self):
         # create text objs and save into separate new locations
@@ -187,6 +197,50 @@ class Menu:
 
 
     # ---------------------------------------- DECIPHER METHODS ----------------------------------------
+
+
+    def decipher(self):
+        """
+        decide how user will provide content
+        args : None
+        return : None
+        """
+        match Menu.show_cipher_options():
+            case 1:
+                self.decipher_from_provided_text()
+            case 2:
+                self.decipher_from_filesystem()
+
+
+    def decipher_from_provided_text(self):
+        self.content, self.cipher_content = CipherManager.dencrypt_from_given_content()
+        os.system("cls")
+        match self.choice_after_cipher_text():
+            case 1:
+                self.show_both_versions()
+            case 2:
+                self.save_noncipher()
+            case 3:
+                self.save_cipher()
+            case 4:
+                self.save_both_sep_loc()
+            case 5:
+               self.save_both_same_loc()
+            case _:
+                pass
+
+        print("Operation done successfully... ")
+        time.sleep(1.5)
+        os.system("cls")
+
+    def decipher_from_filesystem(self):
+        pass
+
+    def encode():
+        self._shift()
+
+    def decode():
+        self._shift()
 
     # ---------------------------------------- MANAGE FILES METHODS ----------------------------------------
 

@@ -1,54 +1,7 @@
 import string
 from abc import ABC, abstractmethod
 import os
-
-"""
-CipherFactory
-"""
-
-class UserInterface:
-
-    @staticmethod
-    def show_tutorial():
-        os.system("cls")
-        print("\n")
-        print(" * for method rot13 provide  content that contains only letters A-Z not even space allowed\n")
-        print(" * for method rot47 provide only content that contains ASCII characters\n\n")
-
-    @staticmethod
-    def method_choice() -> int:
-
-        methods = [method.name for method in CipherManager.cipher_methods.values()]
-        # [ rot13, rot47 ... ]
-
-        print(" -  METHODS AVALIABLE  - \n\n")
-        for idx, method in enumerate(methods, start = 1):
-            print(f"{idx}. {method}\n")
-
-        method_choice = input("Your method declaration : ")
-
-        while int(method_choice) not in range(1, len(methods)+1):
-            method_choice = input("Your method declaration : ")
-
-        return int(method_choice)
-
-    @staticmethod
-    def provide_content():
-        content = input("Provide text to cipher : ")
-        return content
-
-
-    @staticmethod
-    def show_replace_option(non_latin_chars : list, non_latin_index : list) -> bool:
-        print("\n")
-        print("Found non allowed characters at given positions : \n")
-        for (char_, pos_) in zip(non_latin_chars, non_latin_index):
-            print(f"{char_} : {pos_}")
-        print("\n")
-        replace = input("Change above occurrences with '*' ?  YES \\ NO  : ")
-        print("\n")
-        return True if "Yes" else False
-
+from src.cipher.user_interface import UserInterface
 
 
 class CipherStrategy(ABC):
@@ -66,7 +19,7 @@ class CipherStrategy(ABC):
         pass
 
     @abstractmethod
-    def validate_content(self, content : str) -> str:
+    def validate_content()
         pass
 
 
@@ -77,6 +30,7 @@ class ROT13Strategy(CipherStrategy):
         self.name = "rot13"
         self.non_latin_chars, self.non_latin_index = [], []
         self.content = None
+        self.cipher_content = None
         self.non_latin_chars = []
         non_latin_chars, non_latin_index = [], []
 
@@ -86,7 +40,13 @@ class ROT13Strategy(CipherStrategy):
     def get_name(self) -> str:
         return self.name
 
-    def encrypt(self, content : str) -> str:
+    def execute(self, content) -> str:
+        self.content = content
+        self.validate_content()
+        self.cipher()
+        return self.cipher_content
+
+    def cipher(self):
         """
         the actual cipher algorithm, takes decipher content and returns cipher version
         Input : string with only ascii letters and " * "
@@ -104,7 +64,7 @@ class ROT13Strategy(CipherStrategy):
         # {0: 'a', 1: 'b' ... 25: 'z'}
 
         non_cipher_content_codes = [] # 0, 24, 21, 11 etc
-        for char_ in content:
+        for char_ in self.content:
             non_cipher_content_codes.append(latin_letters_dict.get(char_))
 
         cipher_content_codes = [] # 0, 12, None, 13, 21 etc
@@ -126,18 +86,18 @@ class ROT13Strategy(CipherStrategy):
 
         return "".join(cipher_content)
 
-    def validate_content(self, content : str) -> str:
+    def validate_content(self):
         """
         returns original or adjusted content
         """
-        self.content = content
-        if not content:
+
+        if not self.content:
             raise ValueError("No content to cipher provided")
 
         self.check_content()
 
         if not self.non_latin_chars:
-            return content
+            return self.content
         else:
             return self.change_unallowed_characters()
 
@@ -162,44 +122,36 @@ class ROT13Strategy(CipherStrategy):
             raise ValueError("User abort cipher")
         return non_cipher_content_replaced
 
-class CipherManager:
-    cipher_methods = {1: ROT13Strategy()}
+class ROT47Strategy(CipherStrategy):
+    pass
+
+class CipherFactory:
 
     @staticmethod
-    def encrypt_from_given_content() -> tuple:
+    def get_cipher(method : str) -> CipherStrategy:
+
+        if method == "rot13":
+            return ROT13Strategy()
+        elif method == "rot47":
+            return ROT47Strategy()
+
+        raise ValueError(f"Unknown cipher method: {method}")
+
+
+class CipherManager:
+    rot_methods = ["rot13", "rot47"]
+
+    @staticmethod
+    def execute() -> tuple:
         """
-        creates right cipher object and execute cipher methods
+        task : shows tutorial, fetch content from user, create and execute right cipher method
         args : None
         return : tuple, cipher and non cipher version of the same provided content
         """
         UserInterface.show_tutorial()
-        match UserInterface.method_choice():
-            case 1:
-                cipher = CipherManager.cipher_methods.get(1)
-            case _:
-                pass
-
+        method = UserInterface.method_choice()
+        cipher = CipherFactory.get_cipher(method)
         content = UserInterface.provide_content()
-        content = cipher.validate_content(content)
         cipher_content = cipher.encrypt(content)
 
         return content, cipher_content
-
-
-    @staticmethod
-    def encrypt_from_filesystem(content_ : str) -> str:
-        """
-        creates right cipher object and execute cipher methods
-        args : None
-        return : tuple, cipher and non cipher version of the same provided content
-        """
-        UserInterface.show_tutorial()
-        match UserInterface.method_choice():
-            case 1:
-                method = CipherManager.cipher_methods.get(1)
-            case _:
-                pass
-
-        content = method.validate_content(content_)
-        cipher_content = method.encrypt(content)
-        return cipher_content

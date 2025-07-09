@@ -203,10 +203,6 @@ class FileHandler:
         return content
 
 
-
-
-
-
     def update(self, text_obj : Text):
         self.texts_collector.update({text_obj.file_path : text_obj})
 
