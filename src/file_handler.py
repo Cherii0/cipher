@@ -5,6 +5,7 @@ from text import Text
 
 TIME_SLEEPER = 2
 
+
 class FileHandler:
     def __init__(self, files_catalog : str):
         self.files_catalog = files_catalog
@@ -205,4 +206,59 @@ class FileHandler:
 
     def update(self, text_obj : Text):
         self.texts_collector.update({text_obj.file_path : text_obj})
+
+
+
+
+    # ---------------------------------------- MANAGE FILES METHODS ----------------------------------------
+
+    def managed_files(self):
+        print("\n")
+        self.show_cipher_files()
+        self.show_non_cipher_files()
+        self.show_both_version_files()
+        self.show_untracked_files()
+        input("\nPress any key to comeback to menu...")
+        os.system("cls")
+
+    def show_cipher_files(self) -> None:
+        print("--------  CIPHER  ---------")
+        print("\n")
+        if self.cipher_filepaths:
+            for filepath in self.cipher_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no cipher files in this system session")
+        print("\n")
+
+    def show_non_cipher_files(self) -> None:
+        print("------  NON CIPHER  -------")
+        print("\n")
+        if self.non_cipher_filepaths:
+            for filepath in self.non_cipher_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no decipher files in this system session")
+        print("\n")
+
+    def show_both_version_files(self) -> None:
+        print("------  BOTH VERSIONS  ------")
+        print("\n")
+        if self.both_ver_filepaths:
+            for filepath in self.both_ver_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no both versions files in this system session")
+        print("\n")
+
+    def show_untracked_files(self) -> None:
+        print("------  UNTRACKED FILES  ------")
+        print("\n")
+        if self.untracked_filepaths:
+            for filepath in self.untracked_filepaths:
+                print(f" * file  {filepath}" )
+        else:
+            print(f" * no unknown status files in this system session")
+        print("\n")
+
 

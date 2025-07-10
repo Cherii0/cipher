@@ -1,7 +1,5 @@
 import os
-
-from src.cipher.cipher import CipherManager
-
+from src.cipher.manager import CipherManager
 
 class UserInterface:
 

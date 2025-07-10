@@ -1,30 +1,15 @@
+from src.cipher.strategy import CipherStrategy
 import string
-from abc import ABC, abstractmethod
-import os
-from src.cipher.user_interface import UserInterface
 
-
-class CipherStrategy(ABC):
-
-    @abstractmethod
-    def encrypt(self, content : str) -> str:
+class ROT47Strategy(CipherStrategy):
+    def execute(self, content : str) -> str:
         pass
-
-    @abstractmethod
-    def decrypt(self, content : str) -> str:
-        pass
-
-    @abstractmethod
     def get_name(self) -> str:
         pass
-
-    @abstractmethod
-    def validate_content()
+    def validate_content(self) -> None:
         pass
 
-
 class ROT13Strategy(CipherStrategy):
-
     def __init__(self):
         self.offset = 13
         self.name = "rot13"
@@ -32,10 +17,6 @@ class ROT13Strategy(CipherStrategy):
         self.content = None
         self.cipher_content = None
         self.non_latin_chars = []
-        non_latin_chars, non_latin_index = [], []
-
-    def decrypt(self, content : str) -> str:
-        pass
 
     def get_name(self) -> str:
         return self.name
@@ -121,37 +102,3 @@ class ROT13Strategy(CipherStrategy):
         else:
             raise ValueError("User abort cipher")
         return non_cipher_content_replaced
-
-class ROT47Strategy(CipherStrategy):
-    pass
-
-class CipherFactory:
-
-    @staticmethod
-    def get_cipher(method : str) -> CipherStrategy:
-
-        if method == "rot13":
-            return ROT13Strategy()
-        elif method == "rot47":
-            return ROT47Strategy()
-
-        raise ValueError(f"Unknown cipher method: {method}")
-
-
-class CipherManager:
-    rot_methods = ["rot13", "rot47"]
-
-    @staticmethod
-    def execute() -> tuple:
-        """
-        task : shows tutorial, fetch content from user, create and execute right cipher method
-        args : None
-        return : tuple, cipher and non cipher version of the same provided content
-        """
-        UserInterface.show_tutorial()
-        method = UserInterface.method_choice()
-        cipher = CipherFactory.get_cipher(method)
-        content = UserInterface.provide_content()
-        cipher_content = cipher.encrypt(content)
-
-        return content, cipher_content

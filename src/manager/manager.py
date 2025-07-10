@@ -2,16 +2,15 @@ import sys
 import re
 import os
 import time
-from file_handler import FileHandler
-from cipher import CipherManager
+from src.cipher.manager import CipherManager
+from src.file_handler import FileHandler
 
 
-class Menu:
-    def __init__(self, file_handler: FileHandler, cipher: CipherManager):
+class Manager:
+    def __init__(self, cipher_manager : CipherManager, file_handler : FileHandler):
+        self.cipher_manager = cipher_manager
         self.file_handler = file_handler
-        self.cipher_manager = cipher
-        self.content = None
-        self.cipher_content = None
+        self.content, self.cipher_content = None, None
 
     # ---------------------------------------- CIPHER METHODS ----------------------------------------
 
@@ -22,16 +21,11 @@ class Menu:
         return : None
         """
 
-
-
-
-        match Menu.show_cipher_options():
+        match self.show_cipher_options():
             case 1:
-                self.cipher_from_provided_text()
+                self.from_provided_text()
             case 2:
-                self.cipher_from_filesystem()
-
-
+                self.from_filesystem()
 
     @staticmethod
     def show_cipher_options() -> int:
@@ -47,20 +41,14 @@ class Menu:
         return int(choice)
 
 
-    # dekorator?
-    def cipher_from_provided_text(self):
+    def from_provided_text(self):
         """
         runs cipher manager, stores both versions and decide which saving option execute
-        parameters : None
+        args : None
         return : None
         """
+        self.content, self.cipher_content = self.cipher_manager.execute()
 
-        # create new cipher object using factory method
-
-        # run objects shift method that covers its class methods - then we dont have to execute all methods
-        # that can differ from eachother
-
-        self.content, self.cipher_content = CipherManager.encrypt_from_given_content()
         os.system("cls")
         match self.choice_after_cipher_text():
             case 1:
@@ -142,207 +130,8 @@ class Menu:
 
 
 
-    def cipher_from_filesystem(self):
-        filepath = self.file_choice()
-        self.read_file(filepath)
-        cipher_content = CipherManager.encrypt_from_filesystem(self.content)
-        choice = Menu.choices_after_cipher_file()
-        self.after_cipher_file(choice, filepath)
 
 
-    def file_choice(self):
-        os.system("cls")
-        print("Avaliable files in directory : \n")
-        avaliable_filepaths = self.file_handler.non_cipher_filepaths + self.file_handler.untracked_filepaths
-        for filepath in avaliable_filepaths:
-            print(f"* {filepath}")
-        filepath = input("\nProvide filepath to cipher : ")
-        while filepath not in avaliable_filepaths:
-            filepath = input("Provide proper filepath to cipher : ")
-        return filepath
-
-    def read_file(self, filepath : str):
-        content = self.file_handler.read_file(filepath)
-        self.file_handler.update_non_cipher_objs(filepath = filepath, content = content)
-        time.sleep(1)
-        os.system("cls")
-
-
-    @staticmethod
-    def choices_after_cipher_file() -> int:
-        os.system("cls")
-        print("\nYour options for further content processing :\n")
-        print("1. Simply show cipher version")
-        print("2. Save to same location")
-        print("3. Save to new location\n")
-
-        choice = input("Your choice : ")
-        while choice not in ["1", "2", "3"]:
-            choice = input("Your choice : ")
-        return int(choice)
-
-
-    def after_cipher_file(self, choice : int, filepath : str):
-        match choice:
-            case 1:
-                self.show_both_versions()
-            case 2:
-                self.file_handler.update_cipher_objs(filepath = filepath, content = self.cipher_content)
-                self.file_handler.append(filepath, self.cipher_content)
-            case 3:
-                filepath = input("Provide file path : ")
-                filepath = self.check_filepath(filepath)
-                self.file_handler.update_cipher_objs(filepath = filepath, content = self.cipher_content)
-                self.file_handler.write(filepath = filepath, content = self.cipher_content)
-
-
-    # ---------------------------------------- DECIPHER METHODS ----------------------------------------
-
-
-    def decipher(self):
-        """
-        decide how user will provide content
-        args : None
-        return : None
-        """
-        match Menu.show_cipher_options():
-            case 1:
-                self.decipher_from_provided_text()
-            case 2:
-                self.decipher_from_filesystem()
-
-
-    def decipher_from_provided_text(self):
-        self.content, self.cipher_content = CipherManager.dencrypt_from_given_content()
-        os.system("cls")
-        match self.choice_after_cipher_text():
-            case 1:
-                self.show_both_versions()
-            case 2:
-                self.save_noncipher()
-            case 3:
-                self.save_cipher()
-            case 4:
-                self.save_both_sep_loc()
-            case 5:
-               self.save_both_same_loc()
-            case _:
-                pass
-
-        print("Operation done successfully... ")
-        time.sleep(1.5)
-        os.system("cls")
-
-    def decipher_from_filesystem(self):
-        pass
-
-    def encode():
-        self._shift()
-
-    def decode():
-        self._shift()
-
-    # ---------------------------------------- MANAGE FILES METHODS ----------------------------------------
-
-    def managed_files(self):
-        print("\n")
-        self.show_cipher_files()
-        self.show_non_cipher_files()
-        self.show_both_version_files()
-        self.show_untracked_files()
-        input("\nPress any key to comeback to menu...")
-        os.system("cls")
-
-    def show_cipher_files(self) -> None:
-        print("--------  CIPHER  ---------")
-        print("\n")
-        if self.file_handler.cipher_filepaths:
-            for filepath in self.file_handler.cipher_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no cipher files in this system session")
-        print("\n")
-
-    def show_non_cipher_files(self) -> None:
-        print("------  NON CIPHER  -------")
-        print("\n")
-        if self.file_handler.non_cipher_filepaths:
-            for filepath in self.file_handler.non_cipher_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no decipher files in this system session")
-        print("\n")
-
-    def show_both_version_files(self) -> None:
-        print("------  BOTH VERSIONS  ------")
-        print("\n")
-        if self.file_handler.both_ver_filepaths:
-            for filepath in self.file_handler.both_ver_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no both versions files in this system session")
-        print("\n")
-
-    def show_untracked_files(self) -> None:
-        print("------  UNTRACKED FILES  ------")
-        print("\n")
-        if self.file_handler.untracked_filepaths:
-            for filepath in self.file_handler.untracked_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no unknown status files in this system session")
-        print("\n")
-
-# ---------------------------------------- MANAGE FILES METHODS ----------------------------------------
-
-    def managed_files(self):
-        print("\n")
-        self.show_cipher_files()
-        self.show_non_cipher_files()
-        self.show_both_version_files()
-        self.show_untracked_files()
-        input("\nPress any key to comeback to menu...")
-        os.system("cls")
-
-    def show_cipher_files(self) -> None:
-        print("--------  CIPHER  ---------")
-        print("\n")
-        if self.file_handler.cipher_filepaths:
-            for filepath in self.file_handler.cipher_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no cipher files in this system session")
-        print("\n")
-
-    def show_non_cipher_files(self) -> None:
-        print("------  NON CIPHER  -------")
-        print("\n")
-        if self.file_handler.non_cipher_filepaths:
-            for filepath in self.file_handler.non_cipher_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no decipher files in this system session")
-        print("\n")
-
-    def show_both_version_files(self) -> None:
-        print("------  BOTH VERSIONS  ------")
-        print("\n")
-        if self.file_handler.both_ver_filepaths:
-            for filepath in self.file_handler.both_ver_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no both versions files in this system session")
-        print("\n")
-
-    def show_untracked_files(self) -> None:
-        print("------  UNTRACKED FILES  ------")
-        print("\n")
-        if self.file_handler.untracked_filepaths:
-            for filepath in self.file_handler.untracked_filepaths:
-                print(f" * file  {filepath}" )
-        else:
-            print(f" * no unknown status files in this system session")
-        print("\n")
 
 
 
@@ -359,23 +148,6 @@ class Menu:
         print("4. about program")
         print("5. exit")
         print("---------------------")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     def check_filepath(self, filepath : str) -> str:
@@ -408,10 +180,6 @@ class Menu:
     @staticmethod
     def exit():
         sys.exit()
-
-
-
-
 
 
     def cipher_file(self):
@@ -463,10 +231,6 @@ class Menu:
         self.file_handler.texts_collector.update({cipher_file_path : cipher_text_obj})
         return None
 
-
-
-
-
     def choose_file(self):
         self.show_avaliable_files()
         ff_len = len(self.files_filtered)
@@ -505,3 +269,31 @@ class Menu:
         os.system("cls")
 
 
+
+
+
+
+
+
+
+
+
+    def execute(self):
+        self.menu()
+        while True:
+            choice = int(input("Provide choice : "))
+            os.system("cls")
+            match choice:
+                case 1:
+                    self.managed_files()
+                case 2:
+                    self.cipher()
+                case 3:
+                    self.decipher()
+                case 4:
+                    self.about()
+                case 5:
+                    self.exit()
+                case _:
+                    pass
+            self.menu()
