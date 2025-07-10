@@ -4,7 +4,7 @@ from src.cipher.strategy import CipherFactory
 class CipherManager:
 
     @staticmethod
-    def execute() -> tuple:
+    def execute(content : str) -> tuple:
         """
         task : shows tut, fetch method from user, create object from factory, cipher and returns content
         args : None
@@ -13,7 +13,8 @@ class CipherManager:
         UserInterface.show_tutorial()
         method = UserInterface.method_choice()
         cipher = CipherFactory.get_cipher(method)
-        content = UserInterface.provide_content()
+        if not content:
+            content = UserInterface.provide_content()
         cipher_content = cipher.execute(content)
 
         return content, cipher_content
