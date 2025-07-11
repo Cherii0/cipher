@@ -1,13 +1,13 @@
-from file_handler import FileHandler
-from src.cipher.manager import CipherManager
-from src.manager.manager import Manager
+from manager import Manager
+from menu import Menu
+from cipher_manager import CipherManager
 
 
 def main():
 
-    file_handler = FileHandler("../cipher_files")
+    menu = Menu()
     cipher_manager = CipherManager()
-    manager = Manager(file_handler=file_handler, cipher_manager = cipher_manager)
+    manager = Manager(menu = menu, cipher_manager = cipher_manager)
     manager.execute()
 
 if __name__ == "__main__":
