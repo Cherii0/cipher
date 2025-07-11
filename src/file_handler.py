@@ -4,6 +4,10 @@ import time
 SLEEP_TIME = 1.5
 
 class FileHandler:
+    @staticmethod
+    def read_about(filepath : str) -> list:
+        with open(file=filepath, mode="r", encoding="UTF-8") as file:
+            return file.readlines()
 
     @staticmethod
     def read(filepath : str) -> str:

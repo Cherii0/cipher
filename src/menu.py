@@ -1,4 +1,6 @@
 import os, re
+from file_handler import FileHandler
+
 
 class Menu:
     @staticmethod
@@ -115,3 +117,12 @@ class Menu:
         filepath_cipher = Menu.type_saving_filepath()
         return filepath_decipher, filepath_cipher
 
+
+    @staticmethod
+    def about(filepath : str) -> None:
+        content_about = FileHandler.read_about(filepath)
+        os.system("cls")
+        print("\n")
+        for line in content_about:
+            print(line)
+        input("\n\nPress any key to comeback to menu...")

@@ -2,6 +2,7 @@ import os
 from menu import Menu
 from cipher_manager import CipherManager
 from file_handler import FileHandler
+import sys
 
 
 class Manager:
@@ -26,9 +27,9 @@ class Manager:
                 case 3:
                     self.decipher("DECIPHER")
                 case 4:
-                    pass
+                    self.menu.about("../about.txt")
                 case 5:
-                    pass
+                    sys.exit()
                 case _:
                     pass
 
