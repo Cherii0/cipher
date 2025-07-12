@@ -44,7 +44,7 @@ class UserInterface:
 
 
     @staticmethod
-    def choice_filepath() -> str:
+    def choice_filepath() -> str | None:
         os.system("cls")
         print("\nAVALIABLE FILES : \n")
         os.chdir(UserInterface.cipher_filepath)
@@ -55,6 +55,10 @@ class UserInterface:
             match = re.match(pattern = p, string = file)
             if match:
                 files_filtered.append(match.string)
+
+        if not files_filtered:
+            print("\n* There is no files in present session\n")
+            return None
 
         for idx, file in enumerate(files_filtered, start=1):
             print(f"{idx}. {file}")

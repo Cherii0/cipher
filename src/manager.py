@@ -3,6 +3,8 @@ from menu import Menu
 from cipher_manager import CipherManager
 from file_handler import FileHandler
 import sys
+from text_manager import Text
+from text_manager import TextManager
 
 
 class Manager:
@@ -21,7 +23,7 @@ class Manager:
             os.system("cls")
             match self.menu.show_front_menu():
                 case 1:
-                    pass
+                    self.managed_files()
                 case 2:
                     self.cipher("CIPHER")
                 case 3:
@@ -33,24 +35,37 @@ class Manager:
                 case _:
                     pass
 
+    def managed_files(self):
+        self.menu.managed_files()
+
     def cipher(self, title : str):
         """
         decide how user will provide content
         args : None
         return : None
         """
+        if title == "CIPHER":
+            TextManager.set_params(encrypted=False)
+        else:
+            TextManager.set_params(encrypted=True)
+
         match self.menu.show_cipher_options(title):
             case 1:
-                self.content, self.cipher_content = self.ciper_manager.execute(from_file = False)
+                self.content, self.cipher_content = self.ciper_manager.execute(from_file=False)
+                if not self.content:
+                    return
                 self.choice_saving()
-            case 2:
-                self.content, self.cipher_content =self.ciper_manager.execute(from_file = True)
+            case 2: # case 2 means from filesystem -> create text obj
+                self.content, self.cipher_content = self.ciper_manager.execute(from_file=True)
+                TextManager.set_params(filepath=CipherManager.get_current_filepath(), content=self.content)
+                TextManager.create_obj()
+                if not self.content:
+                    return
                 self.choice_saving()
 
 
     def decipher(self, title):
         self.cipher(title)
-
 
     def choice_saving(self):
         choice = self.menu.show_saving_choices()
@@ -62,11 +77,17 @@ class Manager:
             match choice:
                 case 2:
                     FileHandler.write(filepath=filepath, content=self.content)
+                    TextManager.set_params(filepath=filepath)
+                    TextManager.create_obj()
                 case 3:
+                    TextManager.set_params(filepath=filepath, content=self.cipher_content, rot_type=CipherManager.get_current_method(), encrypted=True)
+                    TextManager.create_obj()
                     FileHandler.write(filepath=filepath, content=self.cipher_content)
                 case 5:
-                    content_concatenated = self.content+"\n"+self.cipher_content
-                    FileHandler.write(filepath=filepath, content=content_concatenated)
+                    self.content = self.content+"\n"+self.cipher_content
+                    TextManager.set_params(filepath=filepath, content=self.content, encrypted=False, rot_type=None)
+                    TextManager.create_obj()
+                    FileHandler.write(filepath=filepath, content=self.content)
                 case _:
                     pass
         elif choice in output_option:
@@ -79,7 +100,11 @@ class Manager:
             filepath_decipher, filepath_cipher = self.menu.type_saving_filepaths()
             match choice:
                 case 4:
-                    FileHandler.write(filepath=filepath_decipher, content=self.content)
                     FileHandler.write(filepath=filepath_cipher, content=self.content)
+                    TextManager.set_params(filepath=filepath_cipher, content=self.cipher_content, encrypted=True, rot_type=CipherManager.get_current_method())
+                    TextManager.create_obj()
+                    FileHandler.write(filepath=filepath_decipher, content=self.content)
+                    TextManager.set_params(filepath=filepath_decipher, content=self.content, rot_type="", encrypted=False)
+                    TextManager.create_obj()
                 case _:
                     pass

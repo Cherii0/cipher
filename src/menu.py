@@ -1,5 +1,6 @@
 import os, re
 from file_handler import FileHandler
+from text_manager import TextManager
 
 
 class Menu:
@@ -125,4 +126,15 @@ class Menu:
         print("\n")
         for line in content_about:
             print(line)
+        input("\n\nPress any key to comeback to menu...")
+
+    @staticmethod
+    def managed_files():
+        text_objs = TextManager.get_texts()
+        os.system("cls")
+        if not text_objs:
+            print("\n\n* There is no files in present session")
+
+        for filepath, attr in text_objs.items():
+            print(f"* {filepath}   {attr}")
         input("\n\nPress any key to comeback to menu...")
