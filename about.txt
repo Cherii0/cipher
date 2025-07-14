@@ -1,0 +1,4 @@
+This cipher program encrypts and decrypts text using methods like ROT13 and ROT47.
+It checks input for unsupported characters and lets users replace or keep them.
+The design allows making new cipher algorithms in the future.
+Users can view results on-screen or save them to a file.
