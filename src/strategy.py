@@ -145,17 +145,11 @@ class ROT13Strategy(CipherStrategy):
 
         for code_ in non_cipher_content_codes:
             if code_ is None:
-                cipher_content_codes.append(None)
+                continue
+            elif code_ < self.offset:
+                cipher_content_codes.append(code_ + self.offset)
             else:
-                relative_code = code_ - 33
-                if relative_code < self.offset:
-                    shifted_relative = relative_code + self.offset
-                else:
-                    shifted_relative = relative_code - self.offset
-
-                shifted_relative_wrapped = shifted_relative % 94
-                shifted_code = shifted_relative_wrapped + 33
-                cipher_content_codes.append(shifted_code)
+                cipher_content_codes.append(code_ - self.offset)
 
         cipher_content = []
         for code_ in cipher_content_codes:
