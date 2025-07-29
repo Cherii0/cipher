@@ -1,35 +1,44 @@
 from abc import ABC, abstractmethod
 import string
+from user_interface import UserInterface
 
+class UserCancelReplace(Exception):
+    pass
 
 class CipherStrategy(ABC):
+
+    @staticmethod
     @abstractmethod
-    def execute(self, content : str) -> str:
+    def execute(content : str) -> str:
         pass
+
+    @staticmethod
     @abstractmethod
-    def get_name(self) -> str:
+    def get_name() -> str:
         pass
+
+    @staticmethod
     @abstractmethod
-    def validate_content(self) -> None:
+    def validate_content(content : str) -> str:
         pass
+
+    @staticmethod
     @abstractmethod
-    def cipher(self) -> None:
+    def cipher(content : str) -> str:
         pass
 
 class ROT47Strategy(CipherStrategy):
-    def __init__(self):
-        self.offset = 47
-        self.name = "rot47"
-        self.content = None
-        self.cipher_content = None
+    offset = 47
+    name = "rot47"
 
-    def execute(self, content : str) -> str:
-        self.content = content
-        self.validate_content()
-        self.cipher()
-        return self.cipher_content
+    @staticmethod
+    def execute(content : str) -> str:
+        content = ROT47Strategy.validate_content(content)
+        cipher_content = ROT47Strategy.cipher(content)
+        return cipher_content
 
-    def cipher(self):
+    @staticmethod
+    def cipher(content) -> str:
         """
         the actual cipher algorithm remains original content and produce cipher content
         args : None
@@ -45,7 +54,7 @@ class ROT47Strategy(CipherStrategy):
         # {code : character}
 
         non_cipher_content_codes = []
-        for char_ in self.content:
+        for char_ in content:
             non_cipher_content_codes.append(ascii_chars_dict.get(char_))
 
         cipher_content_codes = []
@@ -64,23 +73,26 @@ class ROT47Strategy(CipherStrategy):
             else:
                 cipher_content.append(ascii_codes_dict[code_])
 
-        self.cipher_content = "".join(cipher_content)
+        cipher_content = "".join(cipher_content)
+        return cipher_content
 
-    def get_name(self) -> str:
-        return self.name
+    @staticmethod
+    def get_name() -> str:
+        return ROT47Strategy.name
 
-    def validate_content(self) -> None:
+    @staticmethod
+    def validate_content(content : str) -> str:
         """
         remains original content or replace unallowed characters with " * " depends on user choice
         args : None
         return : None
         """
-        if not self.content:
+        if not content:
             raise ValueError("No content to cipher provided")
 
         non_allowed_chars, non_allowed_index = [], []
         # checks if content contains any no allowed chars
-        for (idx, c) in enumerate(self.content, start=0):
+        for (idx, c) in enumerate(content, start=0):
             ascii_code = ord(c)
             if ascii_code < 33 or ascii_code > 126:
                 if c == " ":
@@ -90,36 +102,34 @@ class ROT47Strategy(CipherStrategy):
                 non_allowed_index.append(idx)
 
         if non_allowed_chars:
-            from user_interface import UserInterface
             if UserInterface.show_replace_option(non_allowed_chars, non_allowed_index):
                 # replace not allowed characters with " * "
-                non_cipher_content_replaced = list(self.content)
+                non_cipher_content_replaced = list(content)
                 for pos_ in non_allowed_index:
                     non_cipher_content_replaced[pos_] = "*"
                 non_cipher_content_replaced = "".join(non_cipher_content_replaced)
-                self.content = non_cipher_content_replaced
+                return non_cipher_content_replaced
             else:
-                raise ValueError("User abort cipher")
+                raise UserCancelReplace
         else:
-            return
+            return content
 
 class ROT13Strategy(CipherStrategy):
-    def __init__(self):
-        self.offset = 13
-        self.name = "rot13"
-        self.content = None
-        self.cipher_content = None
+    offset = 13
+    name = "rot13"
 
-    def get_name(self) -> str:
-        return self.name
+    @staticmethod
+    def get_name() -> str:
+        return ROT13Strategy.name
 
-    def execute(self, content) -> str:
-        self.content = content
-        self.validate_content()
-        self.cipher()
-        return self.cipher_content
+    @staticmethod
+    def execute(content) -> str:
+        content = ROT13Strategy.validate_content(content)
+        cipher_content = ROT13Strategy.cipher(content)
+        return cipher_content
 
-    def cipher(self) -> None:
+    @staticmethod
+    def cipher(content) -> str:
         """
         the actual cipher algorithm remains original content and produce cipher content
         args : None
@@ -138,7 +148,7 @@ class ROT13Strategy(CipherStrategy):
         # {0: 'a', 1: 'b' ... 25: 'z'}
 
         non_cipher_content_codes = [] # 0, 24, 21, 11 etc
-        for char_ in self.content:
+        for char_ in content:
             non_cipher_content_codes.append(latin_letters_dict.get(char_))
 
         cipher_content_codes = [] # 0, 12, None, 13, 21 etc
@@ -146,10 +156,10 @@ class ROT13Strategy(CipherStrategy):
         for code_ in non_cipher_content_codes:
             if code_ is None:
                 continue
-            elif code_ < self.offset:
-                cipher_content_codes.append(code_ + self.offset)
+            elif code_ < ROT13Strategy.offset:
+                cipher_content_codes.append(code_ + ROT13Strategy.offset)
             else:
-                cipher_content_codes.append(code_ - self.offset)
+                cipher_content_codes.append(code_ - ROT13Strategy.offset)
 
         cipher_content = []
         for code_ in cipher_content_codes:
@@ -158,20 +168,22 @@ class ROT13Strategy(CipherStrategy):
             else:
                 cipher_content.append(latin_codes_dict[code_])
 
-        self.cipher_content = "".join(cipher_content)
+        cipher_content = "".join(cipher_content)
+        return cipher_content
 
-    def validate_content(self):
+    @staticmethod
+    def validate_content(content : str) -> str:
         """
         remains original content or replace unallowed characters with " * " depends on user choice
         args : None
         return : None
         """
-        if not self.content:
+        if not content:
             raise ValueError("No content to cipher provided")
 
         non_latin_chars, non_latin_index = [], []
         # checks if content contains any no allowed chars
-        for (idx, c) in enumerate(self.content, start=0):
+        for (idx, c) in enumerate(content, start=0):
             if c not in string.ascii_lowercase:
                 if c == " ":
                     non_latin_chars.append("space")
@@ -180,18 +192,17 @@ class ROT13Strategy(CipherStrategy):
                 non_latin_index.append(idx)
 
         if non_latin_chars:
-            from user_interface import UserInterface
             if UserInterface.show_replace_option(non_latin_chars, non_latin_index):
                 # replace not allowed characters with " * "
-                non_cipher_content_replaced = list(self.content)
+                non_cipher_content_replaced = list(content)
                 for pos_ in non_latin_index:
                     non_cipher_content_replaced[pos_] = "*"
                 non_cipher_content_replaced = "".join(non_cipher_content_replaced)
-                self.content = non_cipher_content_replaced
+                return non_cipher_content_replaced
             else:
-                raise ValueError("User abort cipher")
+                raise UserCancelReplace
         else:
-            return
+            return content
 
 class EmptyRotMethods(Exception):
     pass

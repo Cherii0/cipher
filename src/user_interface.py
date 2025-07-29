@@ -78,4 +78,4 @@ class UserInterface:
         print("\n")
         replace = input("Change above occurrences with '*' ?  YES \\ NO  : ")
         print("\n")
-        return True if "Yes" else False
+        return True if replace=="YES" else False
