@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import string
-from user_interface import UserInterface
 
 
 class CipherStrategy(ABC):
@@ -91,6 +90,7 @@ class ROT47Strategy(CipherStrategy):
                 non_allowed_index.append(idx)
 
         if non_allowed_chars:
+            from user_interface import UserInterface
             if UserInterface.show_replace_option(non_allowed_chars, non_allowed_index):
                 # replace not allowed characters with " * "
                 non_cipher_content_replaced = list(self.content)
@@ -180,6 +180,7 @@ class ROT13Strategy(CipherStrategy):
                 non_latin_index.append(idx)
 
         if non_latin_chars:
+            from user_interface import UserInterface
             if UserInterface.show_replace_option(non_latin_chars, non_latin_index):
                 # replace not allowed characters with " * "
                 non_cipher_content_replaced = list(self.content)
@@ -192,20 +193,34 @@ class ROT13Strategy(CipherStrategy):
         else:
             return
 
+class EmptyRotMethods(Exception):
+    pass
 
 class CipherFactory:
     _rot_methods = ["rot13", "rot47"]
 
     @staticmethod
-    def get_rot_methods():
+    def update_rot_methods(rot_methods : list[str]) -> None:
+        for rm in rot_methods:
+            if rm in CipherFactory._rot_methods:
+                pass
+            else:
+                CipherFactory._rot_methods.append(rm)
+
+    @staticmethod
+    def clear_rot_methods():
+        CipherFactory._rot_methods.clear()
+
+    @staticmethod
+    def get_rot_methods() -> list:
+        if not CipherFactory._rot_methods:
+            raise EmptyRotMethods
         return CipherFactory._rot_methods
 
     @staticmethod
     def get_cipher(method : str) -> CipherStrategy:
-
         if method == "rot13":
             return ROT13Strategy()
         elif method == "rot47":
             return ROT47Strategy()
-
         raise ValueError(f"Unknown cipher method: {method}")
