@@ -89,8 +89,69 @@ def test_when_correct_filepath_and_given_incorrect_filepaths_then_correct_then_r
     monkeypatch.setattr(target=builtins, name="input", value=lambda _: next(inputs))
     assert UserInterface.choice_filepath() == "file1.txt"
 
-next :
-    _type_filepath
-    _show_avaliable_files
-    _filter_files
-    show_replace_option
+
+@pytest.mark.type_filepath
+def test_when_correct_filepath_then_return_filepath(monkeypatch):
+    filepaths = ["file1.txt", "file2.txt"]
+    filepath = "file1.txt"
+    monkeypatch.setattr(target=builtins, name="input", value=lambda _ :filepath)
+    assert UserInterface._type_filepath(filepaths) == filepath
+
+@pytest.mark.type_filepath
+def test_when_incorrect_filepath_then_correct_then_return_correct_filepath(monkeypatch):
+    filepaths = ["file1.txt", "file2.txt"]
+    inputs = iter(["aaaa", "bbbb", "file1.txt", "cccc"])
+    monkeypatch.setattr(target=builtins, name="input", value=lambda _ : next(inputs))
+    assert UserInterface._type_filepath(filepaths) == "file1.txt"
+
+
+@pytest.mark.type_filepath
+def test_when_non_str_filepath_then_str_then_return_str_filepath(monkeypatch):
+    filepaths = ["file1.txt", "file2.txt"]
+    inputs = iter([(2,3), "file1.txt"])
+    monkeypatch.setattr(target=builtins, name="input", value=lambda _ : next(inputs))
+    assert UserInterface._type_filepath(filepaths) == "file1.txt"
+
+@pytest.mark.show_avaliable_files
+def test_show_avaliable_files_when_correct_filepaths(capsys):
+    msg = "\nAVALIABLE FILES : \n\n" + "1. file1.txt\n" + "2. file2.txt\n"
+    filepaths = ["file1.txt", "file2.txt"]
+    UserInterface._show_avaliable_files(filepaths)
+    stdout, stderr = capsys.readouterr()
+    assert msg == stdout
+
+@pytest.mark.show_avaliable_files
+def test_show_info_no_filepaths_when_empty_filepaths(capsys):
+    msg = "There is no match files in current directory cipher_files\n"
+    filepaths = []
+    UserInterface._show_avaliable_files(filepaths)
+    stdout, stderr = capsys.readouterr()
+    assert msg == stdout
+
+@pytest.mark.filter_files
+def test_if_directory_empty_return_empty_list():
+    filepaths = []
+    pattern = r"(?P<file_path>\w{1,})(\.)(?P<extension>txt|json)"
+    assert UserInterface._filter_files(filepaths, pattern) == []
+
+@pytest.mark.filter_files
+def test_if_non_str_pattern_then_raise():
+    filepaths = ["file1.txt", "file2.txt"]
+    pattern = 21
+    with pytest.raises(ValueError):
+        UserInterface._filter_files(filepaths, pattern)
+
+@pytest.mark.replace_option
+def test_when_replace_list_empty_then_return_none():
+    chars = []
+    pos = []
+    assert UserInterface.show_replace_option(chars, pos) is None
+
+@pytest.mark.replace_option
+def test_when_correct_replace_input_then_show_output(capsys):
+    chars = ["ź", " ", "_", "ó"]
+    pos = [3, 5, 8, 12]
+    msg = "\n Found non allowed characters at given positions : \n\n" + "ź : 3\n" + "  : 5\n" + "_ : 8\n"  + "ó : 12\n"
+    UserInterface.show_replace_option(chars, pos)
+    stdout, stderr = capsys.readouterr()
+    assert msg == stdout
