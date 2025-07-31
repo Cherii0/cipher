@@ -54,8 +54,9 @@ class UserInterface:
         UserInterface._show_avaliable_files(files_filtered)
         return UserInterface._type_filepath(files_filtered)
 
+
     @staticmethod
-    def _type_filepath(files_filtered) -> str:
+    def _type_filepath(files_filtered : list) -> str:
         filepath = input("\nProvide filepath : ")
         while True:
             if filepath in files_filtered:
@@ -65,13 +66,20 @@ class UserInterface:
         return filepath
 
     @staticmethod
-    def _show_avaliable_files(files_filtered):
+    def _show_avaliable_files(files_filtered : list) -> None:
+        if not files_filtered:
+            print(f"There is no match files in current directory {UserInterface.cipher_filepath[3:]}")
+            return
         print("\nAVALIABLE FILES : \n")
         for idx, file in enumerate(files_filtered, start=1):
             print(f"{idx}. {file}")
 
     @staticmethod
-    def _filter_files(files, p):
+    def _filter_files(files : list, p : str) -> list:
+        if not files:
+            return []
+        if not p or not isinstance(p, str):
+            raise ValueError("Incorrect pattern value")
         files_filtered = []
         for file in files:
             match = re.match(pattern = p, string = file)
@@ -80,12 +88,14 @@ class UserInterface:
         return files_filtered
 
     @staticmethod
-    def show_replace_option(non_latin_chars : list, non_latin_index : list) -> bool:
-        print("\n")
-        print("Found non allowed characters at given positions : \n")
+    def show_replace_option(non_latin_chars : list, non_latin_index : list) -> None:
+        if not non_latin_chars or not non_latin_index:
+            return
+        print("\n Found non allowed characters at given positions : \n")
         for (char_, pos_) in zip(non_latin_chars, non_latin_index):
             print(f"{char_} : {pos_}")
-        print("\n")
-        replace = input("Change above occurrences with '*' ?  YES \\ NO  : ")
-        print("\n")
+
+    @staticmethod
+    def replace_option() -> bool:
+        replace = input("\nChange above occurrences with '*' ?  YES \\ NO  : \n")
         return True if replace=="YES" else False
