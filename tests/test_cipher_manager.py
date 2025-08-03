@@ -4,8 +4,6 @@ sys.path.append("../src")
 from src.cipher_manager import CipherManager
 from src.user_interface import UserInterface
 from src.strategy import ROT13Strategy
-from src.file_handler import FileHandler
-from src.file_handler import FileHandler
 import builtins
 
 @pytest.fixture

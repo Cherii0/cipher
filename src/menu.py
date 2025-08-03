@@ -101,8 +101,11 @@ class Menu:
         cipher_filepath = "../cipher_files"
         os.system("cls")
         if os.getcwd() != cipher_filepath:
-            os.chdir(cipher_filepath)
-
+            try:
+                os.chdir(cipher_filepath)
+            except FileNotFoundError:
+                os.mkdir(cipher_filepath)
+        os.chdir(cipher_filepath)
         files =  os.listdir()
         p = r"(?P<file_path>\w{1,})(\.)(?P<extension>txt|json)"
         files_filtered = []

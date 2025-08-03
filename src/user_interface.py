@@ -43,11 +43,17 @@ class UserInterface:
                 break
         return method_choice
 
+    @staticmethod
+    def provide_content() -> str:
+        return input("Provide content to cipher : ")
 
     @staticmethod
     def choice_filepath() -> str:
         os.system("cls")
-        os.chdir(UserInterface.cipher_filepath)
+        try:
+            os.chdir(UserInterface.cipher_filepath)
+        except FileNotFoundError:
+            os.mkdir('../cipher_files')
         files =  os.listdir()
         p = r"(?P<file_path>\w{1,})(\.)(?P<extension>txt|json)"
         files_filtered = UserInterface._filter_files(files, p)

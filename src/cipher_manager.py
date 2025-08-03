@@ -12,7 +12,8 @@ class CipherManager:
         args : None
         return : tuple : decipher and cipher content
         """
-        method = UserInterface.method_choice()
+        methods = UserInterface.show_method_choice()
+        method = UserInterface.method_choice(methods)
         cipher = CipherFactory.get_cipher(method)
 
         if from_file:
