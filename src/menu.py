@@ -3,6 +3,21 @@ from file_handler import FileHandler
 
 
 class Menu:
+
+    @staticmethod
+    def _provide_choice() -> int:
+        choice = input("Provide choice : ")
+        while True:
+            try:
+                choice = int(choice)
+                if 0 < choice < 6:
+                    break
+                else:
+                    choice = input("Provide choice between 1 and 6: ")
+            except ValueError:
+                choice = input("Provide numerical choice : ")
+        return choice
+
     @staticmethod
     def show_front_menu() -> int:
         os.system("cls")
@@ -15,31 +30,11 @@ class Menu:
         print("4. about program")
         print("5. exit")
         print("---------------------")
-
-        choice = input("Provide choice : ")
-        while True:
-            try:
-                choice = int(choice)
-                if 0 < choice < 6:
-                    break
-                else:
-                    choice = input("Provide choice between 1 and 6: ")
-            except ValueError:
-                choice = input("Provide numerical choice : ")
-
-        return choice
+        return Menu._provide_choice()
 
 
     @staticmethod
-    def show_cipher_options(title : str) -> int:
-        os.system("cls")
-        print("---------------------")
-        print(f"|      {title}       |")
-        print("---------------------")
-        print("1. from provided text")
-        print("2. from file system")
-        print("---------------------")
-
+    def _provide_cipher_option_input() -> int:
         choice = input("Your choice : ")
         while True:
             try:
@@ -50,19 +45,22 @@ class Menu:
                     choice = int(input("Provide choice between 1 and 2"))
             except ValueError:
                 choice = input("Type numerical choice: ")
-
-        return int(choice)
+        return choice
 
     @staticmethod
-    def show_saving_choices() -> int:
+    def show_cipher_options(title : str) -> int:
         os.system("cls")
-        print("\nYour options for further content processing :\n")
-        print("1. Show both versions")
-        print("2. Save only non cipher to new location")
-        print("3. Save only cipher to new location")
-        print("4. Save to separate cipher and non cipher locations")
-        print("5. Save into one file both versions\n")
+        print("---------------------")
+        print(f"|      {title}       |")
+        print("---------------------")
+        print("1. from provided text")
+        print("2. from file system")
+        print("---------------------")
+        return Menu._provide_cipher_option_input()
 
+    @staticmethod
+
+    def _provide_saving_choice() -> int:
         choice = input("Your choice : ")
         while True:
             try:
@@ -73,16 +71,30 @@ class Menu:
                     choice = input("Provide choice between 1 and 5")
             except ValueError:
                 choice = input("Provide numerical choice : ")
-
         return choice
+
+    @staticmethod
+    def show_saving_choices() -> int:
+        os.system("cls")
+        print("\nYour options for further content processing :\n")
+        print("1. Show both versions")
+        print("2. Save only non cipher to new location")
+        print("3. Save only cipher to new location")
+        print("4. Save to separate cipher and non cipher locations")
+        print("5. Save into one file both versions\n")
+        return Menu._provide_saving_choice()
 
 
     @staticmethod
     def show_both_versions(content : str, cipher_content : str) -> None:
+        os.system("cls")
+        if not isinstance(content, str) or not isinstance(cipher_content, str):
+            raise ValueError("Wrong content type")
+        if not content or not cipher_content:
+            content, cipher_content = "Content missing", "Cipher content missing"
         print(f"\nProvided content : {content}")
         print(f"Cipher  version  : {cipher_content}")
         input("\n\nPress any key to come back to menu... ")
-        os.system("cls")
 
     @staticmethod
     def type_saving_filepath() -> str:
