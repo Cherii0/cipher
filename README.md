@@ -15,12 +15,13 @@ The project follows the <b>PEP8</b> style
 <b>Design Patterns Used</b>: Facade, Factory Method, and Strategy
 </details>
 
-## Technologies
+## Technologies & Tools 
 <ul>
 <li>Python 3.13</li>
 <li>pytest 8.4.1</li>
 <li>PyCharm 2025.1.1.1</li>
 <li>Git & GitHub</li>
+<li>Virtual environments</li>
 </ul>
 
 ## Setup
