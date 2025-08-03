@@ -24,5 +24,5 @@ The project follows the <b>PEP8</b> style
 </ul>
 
 ## Setup
-Clone the repo : ```git clone https://github.com/Cherii0/cipher.git ```
-Install dependencies : ```pip install -r requirements.txt```
+* Clone the repo : ```git clone https://github.com/Cherii0/cipher.git ```
+* Install dependencies : ```pip install -r requirements.txt```
