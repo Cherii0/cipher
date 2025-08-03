@@ -27,7 +27,7 @@ class Manager:
                 case 3:
                     self.decipher("DECIPHER")
                 case 4:
-                    self.menu.about("../about.txt")
+                    self.menu.about("menu_msg/about.txt")
                 case 5:
                     sys.exit()
                 case _:
