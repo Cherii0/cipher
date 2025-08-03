@@ -3,7 +3,6 @@
 * [Technologies](#technologies)
 * [Setup](#setup)
 * [More detailed information about modules](#more-detailed-information-about-modules)
-* [Application view](#application-view)
 
 ## General info
 <details>
@@ -25,4 +24,5 @@ The project follows the <b>PEP8</b> style
 </ul>
 
 ## Setup
-Clone the repo```git clone https://github.com/Cherii0/cipher.git ```
+Clone the repo : ```git clone https://github.com/Cherii0/cipher.git ```
+Install dependencies : ```pip install -r requirements.txt```
