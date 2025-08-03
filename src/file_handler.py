@@ -32,6 +32,10 @@ class FileHandler:
             file.write(content)
 
     @staticmethod
-    def write(filepath : str, content : str):
-        with open(file = filepath, mode = "w", encoding="UTF-8") as file:
+    def write(filepath : str, content : str) -> None:
+        if not isinstance(filepath, str):
+            raise ValueError
+        if not re.match(string=filepath, pattern=r"(?P<file_path>\w{1,})(\.)(?P<extension>txt|json)"):
+            print("given filepath has no extension txt or json")
+        with open(file=filepath, mode="w", encoding="UTF-8") as file:
             file.write(content)
