@@ -29,4 +29,4 @@ The project follows the <b>PEP8</b> style
 * Install dependencies : ```pip install -r requirements.txt```
 
 ## Code Coverage
-![Screenshot](https://github.com/user-attachments/assets/9cd713ae-c76e-4a5b-b5f8-c9208bdbb8d9)
+<img src="https://github.com/user-attachments/assets/9cd713ae-c76e-4a5b-b5f8-c9208bdbb8d9" width="40%" />
