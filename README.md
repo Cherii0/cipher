@@ -9,13 +9,13 @@
 <summary>Click here to see general information about <b>Project</b>!</summary>
 This cipher program encrypts and decrypts text using methods like ROT13 and ROT47.
 It checks input for unsupported characters and lets users replace or keep them.
-The design allows making new cipher algorithms in the future. 
+The design allows making new cipher algorithms in the future.
 Users can view results on-screen or save them to a file.
 The project follows the <b>PEP8</b> style
 <b>Design Patterns Used</b>: Facade, Factory Method, and Strategy
 </details>
 
-## Technologies & Tools 
+## Technologies & Tools
 <ul>
 <li>Python 3.13</li>
 <li>pytest 8.4.1</li>
