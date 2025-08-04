@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import string
-from user_interface import UserInterface
+from src.user_interface import UserInterface
 
 
 class UserCancelReplace(Exception):

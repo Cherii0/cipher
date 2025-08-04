@@ -10,7 +10,8 @@ def test_printed_menu_from_show_front_menu(capsys, monkeypatch):
     monkeypatch.setattr(target=builtins, name="input", value=lambda _: 1)
     Menu.show_front_menu()
     msg = (
-        "---------------------\n"
+        "\n" * 101
+        + "---------------------\n"
         + "|        MENU       |\n"
         + "---------------------\n"
         + "1. managed files\n"
@@ -45,7 +46,8 @@ def test_show_cipher_options(capsys, monkeypatch):
     monkeypatch.setattr(target=builtins, name="input", value=lambda _: 1)
     Menu.show_cipher_options("CIPHER")
     msg = (
-        "---------------------\n"
+        "\n" * 101
+        + "---------------------\n"
         + "|      CIPHER       |\n"
         + "---------------------\n"
         + "1. from provided text\n"
@@ -77,7 +79,8 @@ def test_show_saving_choices(capsys, monkeypatch):
     monkeypatch.setattr(target=builtins, name="input", value=lambda _: 1)
     Menu.show_saving_choices()
     msg = (
-        "\nYour options for further content processing :\n\n"
+        "\n" * 101
+        + "\nYour options for further content processing :\n\n"
         + "1. Show both versions\n"
         + "2. Save only non cipher to new location\n"
         + "3. Save only cipher to new location\n"
@@ -107,7 +110,7 @@ def test_show_saving_choices_when_incorrect_range_then_correct_int_pass(monkeypa
 
 def test_show_both_versions_when_correct_both_vers_then_pass(capsys, monkeypatch):
     monkeypatch.setattr(target=builtins, name="input", value=lambda _: " ")
-    msg = "\nProvided content : python\n" + "Cipher  version  : clguba\n"
+    msg = "\n" * 101 + "\nProvided content : python\n" + "Cipher  version  : clguba\n"
     Menu.show_both_versions(content="python", cipher_content="clguba")
     stdout, stderr = capsys.readouterr()
     assert stdout == msg
@@ -118,7 +121,8 @@ def test_show_both_versions_when_missing_contents_then_adequate_msg(
 ):
     monkeypatch.setattr(target=builtins, name="input", value=lambda _: " ")
     msg = (
-        "\nProvided content : Content missing\n"
+        "\n" * 101
+        + "\nProvided content : Content missing\n"
         + "Cipher  version  : Cipher content missing\n"
     )
     Menu.show_both_versions(content="", cipher_content="")

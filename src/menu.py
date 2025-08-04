@@ -1,6 +1,6 @@
 import os
 import re
-from file_handler import FileHandler
+from src.file_handler import FileHandler
 
 
 class Menu:

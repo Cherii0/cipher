@@ -15,7 +15,8 @@ def test_show_tutorial_when_rot13_then_tut_rot13(capsys):
     ) = capsys.readouterr()
     assert (
         stdout
-        == "\n\n * For method rot13 provide  content that contains only letters A-Z not even space allowed\n\n"
+        == "\n" * 101
+        + "\n\n * For method rot13 provide  content that contains only letters A-Z not even space allowed\n\n"
     )
 
 
@@ -27,7 +28,9 @@ def test_show_tutorial_when_rot47_then_tut_rot47(capsys):
         stderr,
     ) = capsys.readouterr()
     assert (
-        stdout == "\n\n * For method rot47 provide ASCII characters within the range"
+        stdout
+        == "\n" * 101
+        + "\n\n * For method rot47 provide ASCII characters within the range"
         " of 33 to 126, which excludes spaces, newlines\n\n\n"
     )
 
@@ -47,9 +50,14 @@ def test_show_tutorial_when_no_str_input_then_raise():
 @pytest.mark.show_method_choice
 def test_2_method_choice_show_correct_methods_based_on_factory(capsys, mocker):
     mocker.patch(
-        "strategy.CipherFactory.get_rot_methods", return_value=["rot13", "rot47"]
+        "src.strategy.CipherFactory.get_rot_methods", return_value=["rot13", "rot47"]
     )
-    msg = "\n -  METHODS AVALIABLE  - \n\n\n" + "1. rot13\n\n" + "2. rot47\n\n"
+    msg = (
+        "\n" * 101
+        + "\n -  METHODS AVALIABLE  - \n\n\n"
+        + "1. rot13\n\n"
+        + "2. rot47\n\n"
+    )
     UserInterface.show_method_choice()
     stdout, stderr = capsys.readouterr()
     assert stdout == msg
@@ -58,11 +66,12 @@ def test_2_method_choice_show_correct_methods_based_on_factory(capsys, mocker):
 @pytest.mark.show_method_choice
 def test_3_method_choice_show_correct_methods_based_on_factory(capsys, mocker):
     mocker.patch(
-        "strategy.CipherFactory.get_rot_methods",
+        "src.strategy.CipherFactory.get_rot_methods",
         return_value=["rot13", "rot47", "rot21"],
     )
     msg = (
-        "\n -  METHODS AVALIABLE  - \n\n\n"
+        "\n" * 101
+        + "\n -  METHODS AVALIABLE  - \n\n\n"
         + "1. rot13\n\n"
         + "2. rot47\n\n"
         + "3. rot21\n\n"
@@ -75,7 +84,7 @@ def test_3_method_choice_show_correct_methods_based_on_factory(capsys, mocker):
 @pytest.mark.show_method_choice
 def test_return_same_printed_methods(mocker):
     methods = ["rot13"]
-    mocker.patch("strategy.CipherFactory.get_rot_methods", return_value=methods)
+    mocker.patch("src.strategy.CipherFactory.get_rot_methods", return_value=methods)
     assert UserInterface.show_method_choice() == methods
 
 

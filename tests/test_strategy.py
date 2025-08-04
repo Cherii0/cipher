@@ -84,15 +84,16 @@ def test_validate_content_when_correct_content_then_pass(create_rot13_cipher):
 
 @pytest.fixture
 def mock_replace_option_false(mocker):
-    mocker.patch("user_interface.UserInterface.show_replace_option", return_value=False)
+    mocker.patch(
+        "src.user_interface.UserInterface.show_replace_option", return_value=False
+    )
 
 
 @pytest.fixture
-def mock_replace_option_true(mocker):
-    mocker.patch("user_interface.UserInterface.show_replace_option", return_value=True)
-    content = "ab cźd"
-    with pytest.raises(UserCancelReplace):
-        create_rot13_cipher.validate_content(content)
+def mock_replace_option_true(mocker, create_rot13_cipher):
+    mocker.patch(
+        "src.user_interface.UserInterface.show_replace_option", return_value=True
+    )
 
 
 @pytest.mark.strategy_rot13

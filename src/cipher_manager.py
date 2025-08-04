@@ -1,6 +1,6 @@
-from file_handler import FileHandler
-from strategy import CipherFactory
-from user_interface import UserInterface
+from src.file_handler import FileHandler
+from src.strategy import CipherFactory
+from src.user_interface import UserInterface
 
 
 class CipherManager:

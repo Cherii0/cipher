@@ -24,7 +24,7 @@ class UserInterface:
     @staticmethod
     def show_method_choice() -> list:
         print("\n" * 100)
-        from strategy import CipherFactory
+        from src.strategy import CipherFactory
 
         methods = CipherFactory.get_rot_methods()
         print("\n -  METHODS AVALIABLE  - \n\n")

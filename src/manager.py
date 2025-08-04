@@ -1,6 +1,6 @@
 from menu import Menu
-from cipher_manager import CipherManager
-from file_handler import FileHandler
+from src.cipher_manager import CipherManager
+from src.file_handler import FileHandler
 import sys
 
 
