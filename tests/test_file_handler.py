@@ -1,5 +1,6 @@
 import pytest
 import sys
+
 sys.path.append("../src")
 from src.file_handler import FileHandler
 
@@ -11,6 +12,7 @@ def test_write_correct_content_then_read_it_if_equal_then_pass(tmpdir, input_):
     FileHandler.write(str(output_file), content=input_)
     assert output_file.read() == input_
 
+
 @pytest.mark.write
 @pytest.mark.parametrize("filepath", ["file.file", "file.ABCD", "filefile"])
 def test_when_incorrect_filepath_then_proper_output_info(capsys, filepath):
@@ -18,4 +20,3 @@ def test_when_incorrect_filepath_then_proper_output_info(capsys, filepath):
     FileHandler.write(filepath=filepath, content="abcd")
     stdout, stderr = capsys.readouterr()
     assert stdout == warning
-

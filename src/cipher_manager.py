@@ -6,7 +6,7 @@ from user_interface import UserInterface
 class CipherManager:
 
     @staticmethod
-    def execute(from_file : bool) -> tuple:
+    def execute(from_file: bool) -> tuple:
         """
         shows tut, fetch method from user, create object from factory, cipher and returns content
         args : None

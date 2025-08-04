@@ -2,14 +2,16 @@ from abc import ABC, abstractmethod
 import string
 from user_interface import UserInterface
 
+
 class UserCancelReplace(Exception):
     pass
+
 
 class CipherStrategy(ABC):
 
     @staticmethod
     @abstractmethod
-    def execute(content : str) -> str:
+    def execute(content: str) -> str:
         pass
 
     @staticmethod
@@ -19,20 +21,21 @@ class CipherStrategy(ABC):
 
     @staticmethod
     @abstractmethod
-    def validate_content(content : str) -> str:
+    def validate_content(content: str) -> str:
         pass
 
     @staticmethod
     @abstractmethod
-    def cipher(content : str) -> str:
+    def cipher(content: str) -> str:
         pass
+
 
 class ROT47Strategy(CipherStrategy):
     offset = 47
     name = "rot47"
 
     @staticmethod
-    def execute(content : str) -> str:
+    def execute(content: str) -> str:
         content = ROT47Strategy.validate_content(content)
         cipher_content = ROT47Strategy.cipher(content)
         return cipher_content
@@ -48,7 +51,10 @@ class ROT47Strategy(CipherStrategy):
         ascii_bgn, ascii_end = 33, 127
         ascii_codes = [c for c in range(ascii_bgn, ascii_end)]
         # [33 ... 126]
-        ascii_chars_dict = {char_: code_ for (char_, code_) in zip([chr(c) for c in ascii_codes], ascii_codes)}
+        ascii_chars_dict = {
+            char_: code_
+            for (char_, code_) in zip([chr(c) for c in ascii_codes], ascii_codes)
+        }
         # {character : code}
         ascii_codes_dict = {code_: char_ for (char_, code_) in ascii_chars_dict.items()}
         # {code : character}
@@ -81,7 +87,7 @@ class ROT47Strategy(CipherStrategy):
         return ROT47Strategy.name
 
     @staticmethod
-    def validate_content(content : str) -> str:
+    def validate_content(content: str) -> str:
         """
         remains original content or replace unallowed characters with " * " depends on user choice
         args : None
@@ -92,7 +98,7 @@ class ROT47Strategy(CipherStrategy):
 
         non_allowed_chars, non_allowed_index = [], []
         # checks if content contains any no allowed chars
-        for (idx, c) in enumerate(content, start=0):
+        for idx, c in enumerate(content, start=0):
             ascii_code = ord(c)
             if ascii_code < 33 or ascii_code > 126:
                 if c == " ":
@@ -113,6 +119,7 @@ class ROT47Strategy(CipherStrategy):
                 raise UserCancelReplace
         else:
             return content
+
 
 class ROT13Strategy(CipherStrategy):
     offset = 13
@@ -141,17 +148,21 @@ class ROT13Strategy(CipherStrategy):
         latin_codes = [c for c in range(latin_bgn, latin_end)]
         # [0, 1, 2 ... 25] # 26 total = 26 latin letters
 
-        latin_letters_dict = {char_: code_ for (char_, code_) in zip(string.ascii_lowercase, latin_codes)}
+        latin_letters_dict = {
+            char_: code_ for (char_, code_) in zip(string.ascii_lowercase, latin_codes)
+        }
         # {'a': 0, 'b': 1, ... 'z': 25}
 
-        latin_codes_dict = {code_ : char_ for (char_, code_) in latin_letters_dict.items()}
+        latin_codes_dict = {
+            code_: char_ for (char_, code_) in latin_letters_dict.items()
+        }
         # {0: 'a', 1: 'b' ... 25: 'z'}
 
-        non_cipher_content_codes = [] # 0, 24, 21, 11 etc
+        non_cipher_content_codes = []  # 0, 24, 21, 11 etc
         for char_ in content:
             non_cipher_content_codes.append(latin_letters_dict.get(char_))
 
-        cipher_content_codes = [] # 0, 12, None, 13, 21 etc
+        cipher_content_codes = []  # 0, 12, None, 13, 21 etc
 
         for code_ in non_cipher_content_codes:
             if code_ is None:
@@ -172,7 +183,7 @@ class ROT13Strategy(CipherStrategy):
         return cipher_content
 
     @staticmethod
-    def validate_content(content : str) -> str:
+    def validate_content(content: str) -> str:
         """
         remains original content or replace unallowed characters with " * " depends on user choice
         args : None
@@ -183,7 +194,7 @@ class ROT13Strategy(CipherStrategy):
 
         non_latin_chars, non_latin_index = [], []
         # checks if content contains any no allowed chars
-        for (idx, c) in enumerate(content, start=0):
+        for idx, c in enumerate(content, start=0):
             if c not in string.ascii_lowercase:
                 if c == " ":
                     non_latin_chars.append("space")
@@ -204,14 +215,16 @@ class ROT13Strategy(CipherStrategy):
         else:
             return content
 
+
 class EmptyRotMethods(Exception):
     pass
+
 
 class CipherFactory:
     _rot_methods = ["rot13", "rot47"]
 
     @staticmethod
-    def update_rot_methods(rot_methods : list[str]) -> None:
+    def update_rot_methods(rot_methods: list[str]) -> None:
         for rm in rot_methods:
             if rm in CipherFactory._rot_methods:
                 pass
@@ -229,7 +242,7 @@ class CipherFactory:
         return CipherFactory._rot_methods
 
     @staticmethod
-    def get_cipher(method : str) -> CipherStrategy:
+    def get_cipher(method: str) -> CipherStrategy:
         if method == "rot13":
             return ROT13Strategy()
         elif method == "rot47":

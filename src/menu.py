@@ -1,4 +1,5 @@
-import os, re
+import os
+import re
 from file_handler import FileHandler
 
 
@@ -20,7 +21,7 @@ class Menu:
 
     @staticmethod
     def show_front_menu() -> int:
-        os.system("cls")
+        print("\n" * 100)
         print("---------------------")
         print("|        MENU       |")
         print("---------------------")
@@ -31,7 +32,6 @@ class Menu:
         print("5. exit")
         print("---------------------")
         return Menu._provide_choice()
-
 
     @staticmethod
     def _provide_cipher_option_input() -> int:
@@ -48,8 +48,8 @@ class Menu:
         return choice
 
     @staticmethod
-    def show_cipher_options(title : str) -> int:
-        os.system("cls")
+    def show_cipher_options(title: str) -> int:
+        print("\n" * 100)
         print("---------------------")
         print(f"|      {title}       |")
         print("---------------------")
@@ -59,7 +59,6 @@ class Menu:
         return Menu._provide_cipher_option_input()
 
     @staticmethod
-
     def _provide_saving_choice() -> int:
         choice = input("Your choice : ")
         while True:
@@ -75,7 +74,7 @@ class Menu:
 
     @staticmethod
     def show_saving_choices() -> int:
-        os.system("cls")
+        print("\n" * 100)
         print("\nYour options for further content processing :\n")
         print("1. Show both versions")
         print("2. Save only non cipher to new location")
@@ -84,10 +83,9 @@ class Menu:
         print("5. Save into one file both versions\n")
         return Menu._provide_saving_choice()
 
-
     @staticmethod
-    def show_both_versions(content : str, cipher_content : str) -> None:
-        os.system("cls")
+    def show_both_versions(content: str, cipher_content: str) -> None:
+        print("\n" * 100)
         if not isinstance(content, str) or not isinstance(cipher_content, str):
             raise ValueError("Wrong content type")
         if not content or not cipher_content:
@@ -99,18 +97,18 @@ class Menu:
     @staticmethod
     def type_saving_filepath() -> str:
         cipher_filepath = "../cipher_files"
-        os.system("cls")
+        print("\n" * 100)
         if os.getcwd() != cipher_filepath:
             try:
                 os.chdir(cipher_filepath)
             except FileNotFoundError:
                 os.mkdir(cipher_filepath)
         os.chdir(cipher_filepath)
-        files =  os.listdir()
+        files = os.listdir()
         p = r"(?P<file_path>\w{1,})(\.)(?P<extension>txt|json)"
         files_filtered = []
         for file in files:
-            match = re.match(pattern = p, string = file)
+            match = re.match(pattern=p, string=file)
             if match:
                 files_filtered.append(match.string)
 
@@ -120,7 +118,7 @@ class Menu:
             filepath = input("Provide file path : ")
 
         pattern = r"(\w{1,})(\.)(txt|json)"
-        while not re.match(string = filepath, pattern = pattern):
+        while not re.match(string=filepath, pattern=pattern):
             print("wrong filepath name")
             filepath = input("Provide file path : ")
 
@@ -132,11 +130,10 @@ class Menu:
         filepath_cipher = Menu.type_saving_filepath()
         return filepath_decipher, filepath_cipher
 
-
     @staticmethod
-    def about(filepath : str) -> None:
+    def about(filepath: str) -> None:
         content_about = FileHandler.read_about(filepath)
-        os.system("cls")
+        print("\n" * 100)
         print("\n")
         for line in content_about:
             print(line)

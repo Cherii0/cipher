@@ -1,4 +1,3 @@
-import os
 from menu import Menu
 from cipher_manager import CipherManager
 from file_handler import FileHandler
@@ -6,7 +5,7 @@ import sys
 
 
 class Manager:
-    def __init__(self, menu : Menu, cipher_manager : CipherManager):
+    def __init__(self, menu: Menu, cipher_manager: CipherManager):
         self.menu = menu
         self.ciper_manager = cipher_manager
         self.content, self.cipher_content = None, None
@@ -18,7 +17,7 @@ class Manager:
         return : None
         """
         while True:
-            os.system("cls")
+            print("\n" * 100)
             match self.menu.show_front_menu():
                 case 1:
                     pass
@@ -33,7 +32,7 @@ class Manager:
                 case _:
                     pass
 
-    def cipher(self, title : str):
+    def cipher(self, title: str):
         """
         decide how user will provide content
         args : None
@@ -41,21 +40,23 @@ class Manager:
         """
         match self.menu.show_cipher_options(title):
             case 1:
-                self.content, self.cipher_content = self.ciper_manager.execute(from_file = False)
+                self.content, self.cipher_content = self.ciper_manager.execute(
+                    from_file=False
+                )
                 self.choice_saving()
             case 2:
-                self.content, self.cipher_content =self.ciper_manager.execute(from_file = True)
+                self.content, self.cipher_content = self.ciper_manager.execute(
+                    from_file=True
+                )
                 self.choice_saving()
-
 
     def decipher(self, title):
         self.cipher(title)
 
-
     def choice_saving(self):
         choice = self.menu.show_saving_choices()
         output_option = [1]
-        single_filepath_option = [2,3,5]
+        single_filepath_option = [2, 3, 5]
 
         if choice in single_filepath_option:
             filepath = self.menu.type_saving_filepath()
@@ -65,7 +66,7 @@ class Manager:
                 case 3:
                     FileHandler.write(filepath=filepath, content=self.cipher_content)
                 case 5:
-                    content_concatenated = self.content+"\n"+self.cipher_content
+                    content_concatenated = self.content + "\n" + self.cipher_content
                     FileHandler.write(filepath=filepath, content=content_concatenated)
                 case _:
                     pass
