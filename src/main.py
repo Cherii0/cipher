@@ -1,6 +1,8 @@
-from manager import Manager
-from menu import Menu
-from cipher_manager import CipherManager
+import sys
+sys.path.append("../")
+from src.manager import Manager
+from src.menu import Menu
+from src.cipher_manager import CipherManager
 
 
 def main():
